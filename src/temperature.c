@@ -1,4 +1,5 @@
 #include "temperature.h"
+#include "data.h"
 
 static const adc1_channel_t channel = ADC_CHANNEL_6;
 static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
@@ -29,7 +30,7 @@ void measure_temperature()
         uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, &adc_chars);
 
         float temp = (8.194 - (float)sqrt(67.141636 + 0.01048 * (1324.0 - (float)voltage))) / -0.00524 + 30;
-        printf("Temperature: %f °C \tVoltage: %d mV\n", temp, voltage);
+        store_measurment(temp);
 
         vTaskDelay(1000 / portTICK_RATE_MS);
     }

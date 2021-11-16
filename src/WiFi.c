@@ -20,6 +20,7 @@ esp_err_t wifi_connect()
     {
         return ESP_ERR_INVALID_STATE;
     }
+
     wifi_start();
     ESP_ERROR_CHECK(esp_register_shutdown_handler(&wifi_stop));
 

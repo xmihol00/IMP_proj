@@ -1,7 +1,5 @@
-#include "WiFi.h"
-#include "SNTP.h"
 
-static char *TAG = "SNTP";
+#include "SNTP.h"
 
 static void initialize_sntp()
 {
@@ -22,10 +20,13 @@ void set_current_time()
     initialize_sntp();
 
     int retry = 0;
-    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 10) 
+    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 15) 
     {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+
+    setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1);
+    tzset();
 
     ESP_ERROR_CHECK(wifi_disconnect());
 }

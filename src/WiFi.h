@@ -20,9 +20,7 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "esp_wifi.h"
-#include "esp_wifi_default.h"
 #include "esp_err.h"
-#include "esp_netif.h"
 
 esp_err_t wifi_connect();
 

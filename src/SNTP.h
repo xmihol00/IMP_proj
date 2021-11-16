@@ -15,6 +15,8 @@
 #include "nvs_flash.h"
 #include "esp_sntp.h"
 
+#include "WiFi.h"
+
 void set_current_time();
 
 #endif
