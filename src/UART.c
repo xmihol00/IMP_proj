@@ -10,6 +10,7 @@ char send_buffer[BUFFER_SIZE];
 static void parse_input();
 static void skip_buffer_spaces();
 static void skip_buffer_characters();
+void print_status();
 
 static void IRAM_ATTR uart_interupt_handler(void *arg)
 {
@@ -65,6 +66,8 @@ void init_uart()
 
 	// enable RX interrupt
 	ESP_ERROR_CHECK(uart_enable_rx_intr(ACTIVE_UART));
+
+	uart_print_string("\r\n*IInitilizing...\r\n");
 }
 
 void uart_print_measurment(measurment_t *measurment)
@@ -74,6 +77,17 @@ void uart_print_measurment(measurment_t *measurment)
 	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "%c", &local_time) - 5], ": %.3f °C\r\n", measurment->temperature);
 
 	uart_write_bytes(ACTIVE_UART, send_buffer, strlen(send_buffer));
+	vTaskDelay(25 / portTICK_RATE_MS);
+}
+
+void uart_log_measurment(measurment_t *measurment)
+{
+	struct tm local_time;
+	localtime_r(&measurment->time, &local_time);
+	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "* log: %c", &local_time) - 5], ": %.3f °C\r\n", measurment->temperature);
+
+	uart_write_bytes(ACTIVE_UART, send_buffer, strlen(send_buffer));
+	vTaskDelay(25 / portTICK_RATE_MS);
 }
 
 static void parse_input()
@@ -87,7 +101,15 @@ static void parse_input()
 
 	if (recieve_buffer[recieve_buffer_pos] == 's')
 	{
-
+		recieve_buffer_pos++;
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || (strncmp(&recieve_buffer[recieve_buffer_pos += 5], "tatus", 5) && isspace(recieve_buffer[recieve_buffer_pos])))
+		{
+			print_status();
+		}
+		else
+		{
+			unrecognized = 3;
+		}
 	}
 	else if (recieve_buffer[recieve_buffer_pos] == 'p')
 	{
@@ -108,6 +130,10 @@ static void parse_input()
 
 				unrecognized = print_samples((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
 			}
+		}
+		else
+		{
+			unrecognized = 3;
 		}
 	}
 	else if (recieve_buffer[recieve_buffer_pos] == 'l')
@@ -168,4 +194,42 @@ static void skip_buffer_characters()
 	{
 		recieve_buffer_pos++;
 	}
+}
+
+void uart_print_string(const char * string)
+{
+	uart_write_bytes(ACTIVE_UART, string, strlen(string));
+	vTaskDelay(25 / portTICK_RATE_MS);
+}
+
+void print_status()
+{
+	uart_print_string("+-------------------------------------------------------------------------------+\r\n");
+	uart_print_string("|                                DEVICE STATUS                                  |\r\n");
+	uart_print_string("|-------------------------------------------------------------------------------|\r\n");
+	time_t time_sec = get_start_time();
+	struct tm local_time;
+	uint8_t lenght = 0;
+	localtime_r(&time_sec, &local_time);
+	sprintf(send_buffer, "| - Temperature measuring started at ");
+	lenght = strlen(send_buffer);
+	strftime(&send_buffer[lenght], BUFFER_SIZE - lenght, "%c.\t\t\t|\r\n", &local_time);
+	uart_print_string(send_buffer);
+
+	time(&time_sec);
+	localtime_r(&time_sec, &local_time);
+	sprintf(send_buffer, "| - Current time on the device is ");
+	lenght = strlen(send_buffer);
+	strftime(&send_buffer[lenght], BUFFER_SIZE - lenght, "%c.\t\t\t|\r\n", &local_time);
+	uart_print_string(send_buffer);
+
+	time_sec = get_last_sync();
+	localtime_r(&time_sec, &local_time);
+	sprintf(send_buffer, "| - Last synchronization of time carried out at ");
+	lenght = strlen(send_buffer);
+	strftime(&send_buffer[lenght], BUFFER_SIZE - lenght, "%c.\t|\r\n", &local_time);
+	uart_print_string(send_buffer);
+
+	print_log_interval(send_buffer);
+	uart_print_string("+-------------------------------------------------------------------------------+\r\n");
 }

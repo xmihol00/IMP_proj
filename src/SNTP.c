@@ -1,6 +1,9 @@
 
 #include "SNTP.h"
 
+static time_t last_sync = 0;
+static time_t start_time = 0;
+
 static void initialize_sntp()
 {
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
@@ -27,6 +30,21 @@ void set_current_time()
 
     setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1);
     tzset();
+    time(&last_sync);
+    if (start_time == 0)
+    {
+        start_time = last_sync;
+    }
 
     ESP_ERROR_CHECK(wifi_disconnect());
+}
+
+time_t get_last_sync()
+{
+    return last_sync;
+}
+
+time_t get_start_time()
+{
+    return start_time;
 }

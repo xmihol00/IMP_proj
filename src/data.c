@@ -7,7 +7,10 @@ static collected_data_t data;
 static void average_last_minute();
 static void average_last_hour();
 static void average_last_day();
+
+extern void uart_log_measurment(measurment_t *);
 extern void uart_print_measurment(measurment_t *);
+extern void uart_print_string(const char *);
 
 bool init_data()
 {
@@ -46,7 +49,7 @@ void store_measurment(float temperature)
 
     if (log_interval && !(data.seconds[data.seconds_pos].time % log_interval))
     {
-        uart_print_measurment(&data.seconds[data.seconds_pos]);
+        uart_log_measurment(&data.seconds[data.seconds_pos]);
     }
 
     if (++data.seconds_pos == SECONDS)
@@ -83,12 +86,54 @@ static void average_last_minute()
 
 static void average_last_hour()
 {
+    int16_t pos = data.minutes_pos - MINS_IN_HOUR;
+    pos = pos < 0 ? pos + MINUTES : pos;
 
+    float collected = 0.0;
+    uint8_t measurments = 0;
+    for (uint8_t i = 0; i < MINS_IN_HOUR; i++)
+    {
+        if (data.minutes[pos % MINUTES].time != 0)
+        {
+            collected += data.minutes[pos % MINUTES].temperature;
+            measurments++;
+        }
+        pos++;
+    }
+
+    data.hours[data.hours_pos].temperature = collected / measurments;
+    data.hours[data.hours_pos].time = data.minutes[data.minutes_pos].time;
+    
+    if (++data.hours_pos == HOURS)
+    {
+        data.hours_pos = 0;
+    }
 }
 
 static void average_last_day()
 {
+    int16_t pos = data.minutes_pos - HOURS_IN_DAY;
+    pos = pos < 0 ? pos + HOURS : pos;
+
+    float collected = 0.0;
+    uint8_t measurments = 0;
+    for (uint8_t i = 0; i < HOURS_IN_DAY; i++)
+    {
+        if (data.hours[pos % HOURS].time != 0)
+        {
+            collected += data.hours[pos % HOURS].temperature;
+            measurments++;
+        }
+        pos++;
+    }
+
+    data.days[data.days_pos].temperature = collected / measurments;
+    data.days[data.days_pos].time = data.hours[data.hours_pos].time;
     
+    if (++data.days_pos == DAYS)
+    {
+        data.days_pos = 0;
+    }
 }
 
 uint8_t set_log_interval(uint32_t interval, char unit)
@@ -185,10 +230,39 @@ uint8_t print_samples(uint16_t count, char unit)
         if (selected[pos % modulator].time != 0)
         {
             uart_print_measurment(&selected[pos % modulator]);
-            vTaskDelay(25 / portTICK_RATE_MS);
         }
         pos++;
     }
 
     return 0;
+}
+
+void print_log_interval(char *buff)
+{
+    const char* template = "| - Logging with interval of %d %s\r\n";
+
+    if (log_interval == 0)
+    {
+        uart_print_string("| - Logging is turned off.\t\t\t\t\t\t\t|\r\n");
+    }
+    else if (log_interval < SEC_IN_MIN || (log_interval < SECONDS && log_interval % SEC_IN_MIN))
+    {
+        sprintf(buff, template, log_interval, "seconds. \t\t\t\t\t|");
+        uart_print_string(buff);
+    }
+    else if (log_interval < SEC_IN_HOUR)
+    {
+        sprintf(buff, template, log_interval / SEC_IN_MIN, "minutes. \t\t\t\t\t|");
+        uart_print_string(buff);
+    }
+    else if (log_interval < SEC_IN_DAY)
+    {
+        sprintf(buff, template, log_interval / SEC_IN_HOUR, "hours.\t\t\t\t\t\t|");
+        uart_print_string(buff);
+    }
+    else
+    {
+        sprintf(buff, template, log_interval / SEC_IN_DAY, "days.\t\t\t\t\t\t|");
+        uart_print_string(buff);
+    }
 }

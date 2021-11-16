@@ -1,7 +1,14 @@
 #include "temperature.h"
 #include "data.h"
 
-static const adc1_channel_t channel = ADC_CHANNEL_6;
+#define ADC2 1
+
+#if ADC1
+    static const adc1_channel_t channel = ADC1_CHANNEL_6; // GPIO 34
+#endif
+#if ADC2
+    static const adc2_channel_t channel = ADC2_CHANNEL_2; // GPIO 02
+#endif
 static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
 static const adc_atten_t atten = ADC_ATTEN_DB_11;
 static const adc_unit_t unit = ADC_UNIT_1;
@@ -9,8 +16,15 @@ static esp_adc_cal_characteristics_t adc_chars;
 
 void init_temperature()
 {
-    adc1_config_width(width);
-    adc1_config_channel_atten(channel, atten);
+    #if ADC1
+        adc1_config_width(width);
+        adc1_config_channel_atten(channel, atten);
+    #endif
+
+    #if ADC2
+        adc2_config_channel_atten(channel, atten);
+    #endif
+
     esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
 }
 
@@ -21,7 +35,14 @@ void measure_temperature()
         uint32_t adc_reading = 0;
         for (int i = 0; i < NUMBER_OF_SAMPLES; i++) // multisampling
         {
-            adc_reading += adc1_get_raw(channel);
+            #if ADC2
+                int raw = 0;
+                adc2_get_raw(channel, width, &raw);
+                adc_reading += raw;
+            #endif
+            #if ADC1
+                adc_reading = adc1_get_raw(channel);
+            #endif
         }
 
         adc_reading >>= SAMPLE_SHIFT; // prumer z multisampling

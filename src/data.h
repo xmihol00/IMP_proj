@@ -17,6 +17,8 @@
 #define SEC_IN_MIN 60
 #define SEC_IN_HOUR 3600
 #define SEC_IN_DAY 86400
+#define MINS_IN_HOUR 60
+#define HOURS_IN_DAY 24
 
 typedef struct 
 {
@@ -48,5 +50,7 @@ void store_measurment(float temperature);
 uint8_t set_log_interval(uint32_t interval, char unit);
 
 uint8_t print_samples(uint16_t count, char unit);
+
+void print_log_interval(char *buff);
 
 #endif

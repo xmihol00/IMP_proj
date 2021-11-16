@@ -14,5 +14,7 @@ void app_main(void)
     set_current_time();
     init_temperature();
 
+    print_status();
+
     xTaskCreate(&measure_temperature, "measure_temperature", 4096, NULL, 5, NULL);
 }

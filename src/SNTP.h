@@ -19,4 +19,7 @@
 
 void set_current_time();
 
+time_t get_last_sync();
+time_t get_start_time();
+
 #endif
