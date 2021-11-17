@@ -205,7 +205,7 @@ void uart_print_string(const char * string)
 void print_status()
 {
 	uart_print_string("+-------------------------------------------------------------------------------+\r\n");
-	uart_print_string("|                                DEVICE STATUS                                  |\r\n");
+	uart_print_string("|                               DEVICE STATUS                                   |\r\n");
 	uart_print_string("|-------------------------------------------------------------------------------|\r\n");
 	time_t time_sec = get_start_time();
 	struct tm local_time;

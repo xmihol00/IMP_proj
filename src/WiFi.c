@@ -20,6 +20,9 @@ esp_err_t wifi_connect()
     {
         return ESP_ERR_INVALID_STATE;
     }
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     wifi_start();
     ESP_ERROR_CHECK(esp_register_shutdown_handler(&wifi_stop));
@@ -34,7 +37,8 @@ esp_err_t wifi_connect()
 
 esp_err_t wifi_disconnect()
 {
-    if (s_semph_get_ip_addrs == NULL) {
+    if (s_semph_get_ip_addrs == NULL) 
+    {
         return ESP_ERR_INVALID_STATE;
     }
     vSemaphoreDelete(s_semph_get_ip_addrs);

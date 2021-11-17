@@ -1,7 +1,7 @@
 #include "temperature.h"
 #include "data.h"
 
-#define ADC2 1
+#define ADC1 1
 
 #if ADC1
     static const adc1_channel_t channel = ADC1_CHANNEL_6; // GPIO 34
@@ -41,7 +41,7 @@ void measure_temperature()
                 adc_reading += raw;
             #endif
             #if ADC1
-                adc_reading = adc1_get_raw(channel);
+                adc_reading += adc1_get_raw(channel);
             #endif
         }
 

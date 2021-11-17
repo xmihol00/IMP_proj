@@ -4,6 +4,7 @@
 #include "WiFi.h"
 #include "SNTP.h"
 #include "data.h"
+#include "HTTP.h"
 
 void app_main(void)
 {
@@ -11,7 +12,9 @@ void app_main(void)
     
     init_data();
     init_uart();
+    ESP_ERROR_CHECK(wifi_connect());
     set_current_time();
+    start_webserver();
     init_temperature();
 
     print_status();

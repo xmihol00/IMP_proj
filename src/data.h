@@ -53,4 +53,6 @@ uint8_t print_samples(uint16_t count, char unit);
 
 void print_log_interval(char *buff);
 
+collected_data_t *get_data();
+
 #endif

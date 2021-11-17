@@ -13,12 +13,7 @@ static void initialize_sntp()
 
 void set_current_time()
 {
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     sntp_servermode_dhcp(1);
-    ESP_ERROR_CHECK(wifi_connect());
 
     initialize_sntp();
 
@@ -35,8 +30,6 @@ void set_current_time()
     {
         start_time = last_sync;
     }
-
-    ESP_ERROR_CHECK(wifi_disconnect());
 }
 
 time_t get_last_sync()

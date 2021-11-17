@@ -86,8 +86,8 @@ static void average_last_minute()
 
 static void average_last_hour()
 {
-    int16_t pos = data.minutes_pos - MINS_IN_HOUR;
-    pos = pos < 0 ? pos + MINUTES : pos;
+    int16_t pos = data.minutes_pos - MINS_IN_HOUR - 1;
+    pos = pos < 0 ? pos + (MINUTES << 1) : pos;
 
     float collected = 0.0;
     uint8_t measurments = 0;
@@ -102,7 +102,7 @@ static void average_last_hour()
     }
 
     data.hours[data.hours_pos].temperature = collected / measurments;
-    data.hours[data.hours_pos].time = data.minutes[data.minutes_pos].time;
+    data.hours[data.hours_pos].time = data.minutes[data.minutes_pos - 1].time;
     
     if (++data.hours_pos == HOURS)
     {
@@ -112,8 +112,8 @@ static void average_last_hour()
 
 static void average_last_day()
 {
-    int16_t pos = data.minutes_pos - HOURS_IN_DAY;
-    pos = pos < 0 ? pos + HOURS : pos;
+    int16_t pos = data.minutes_pos - HOURS_IN_DAY - 1;
+    pos = pos < 0 ? pos + (HOURS << 1) : pos;
 
     float collected = 0.0;
     uint8_t measurments = 0;
@@ -128,7 +128,7 @@ static void average_last_day()
     }
 
     data.days[data.days_pos].temperature = collected / measurments;
-    data.days[data.days_pos].time = data.hours[data.hours_pos].time;
+    data.days[data.days_pos].time = data.hours[data.hours_pos - 1].time;
     
     if (++data.days_pos == DAYS)
     {
@@ -265,4 +265,9 @@ void print_log_interval(char *buff)
         sprintf(buff, template, log_interval / SEC_IN_DAY, "days.\t\t\t\t\t\t|");
         uart_print_string(buff);
     }
+}
+
+collected_data_t *get_data()
+{
+    return &data;
 }
