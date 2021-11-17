@@ -10,8 +10,8 @@
 #include "freertos/queue.h"
 
 #define SECONDS 300
-#define MINUTES 60
-#define HOURS   24
+#define MINUTES 720
+#define HOURS   168
 #define DAYS    365
 
 #define SEC_IN_MIN 60
@@ -33,17 +33,17 @@ typedef struct
     uint16_t seconds_pos;
 
     measurment_t *minutes;
-    uint8_t minutes_pos;
+    uint16_t minutes_pos;
 
     measurment_t *hours;
-    uint8_t hours_pos;
+    uint16_t hours_pos;
 
     measurment_t *days;
     uint16_t days_pos;
 }
 collected_data_t;
 
-bool init_data();
+esp_err_t init_data();
 
 void store_measurment(float temperature);
 

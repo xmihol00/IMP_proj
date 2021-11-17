@@ -1,0 +1,332 @@
+<html>
+    <head>
+        <title>IMP projekt</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <style type="text/css">
+            .flex {
+                display: flex;
+                padding: 5px 10px;
+            }
+            .p0 {
+                padding: 0px !important;
+            }
+            .data {
+                height: 100%; 
+                width: 48%; 
+                margin-left: 1%;
+                margin-right: 1%; 
+                border: solid #aaa 1px; 
+            }
+            .t-head {
+                position: fixed; 
+                width: calc(47% - 2px); 
+                background-color: #34ebbd; 
+                z-index: 5;
+                border-bottom: solid 2px gray;
+            }
+            .t-body {
+                margin-top: 67px; 
+                height: calc(100% - 67px); 
+                overflow: auto;
+                background-color: #fff;
+            }
+            .headline {
+                text-align: center;
+                margin: 0px;
+                padding: 7px 0px;
+                border-bottom: solid #aaa 1px;
+                background-color: #3c0080;
+                color: #fff;
+                width: 90%;
+            }
+            .hide-show {
+                width: 10%;
+                text-align: center;
+                color: #fff;
+                margin: 0px;
+                padding: 3px 0px 5px 0px;
+                border-bottom: solid #aaa 1px;
+                background-color: #3c0080;
+                font-weight: 1000;
+                font-size: 25px;
+                cursor: pointer;
+            }
+            .hide-show:hover {
+                background-color: #4032a8;
+            }
+            .tmp {
+                width: 35%;
+            }
+            .time {
+                width: 65%;
+            }
+            body {
+                background-color: lightblue;
+            }
+            button {
+                height: 35px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                border-radius: 0.25rem;
+                background-color: #efefef;
+                border: 2px solid #555;
+            }
+            button:hover {
+                background-color: #3232a8;
+                color: #fff;
+            }
+            .btn-selected {
+                background-color: #3232a8;
+                color: #fff;
+            }
+            select {
+                height: 35px;
+                padding: 0px 5px;
+                cursor: pointer;
+                border: 2px solid #555;
+                border-right: none;
+                background-color: #efefef;
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="height: 6%; width: 100%;">
+            <div style="padding: 10px 100px;">
+                <button class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
+                <button onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
+                <button onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
+                <button onclick="UpdateDelay(this)">Aktualizovat každý den</button>
+                <select style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem;">
+                    <option>03</option>
+                    <option>04</option>
+                    <option>05</option>
+                    <option>08</option>
+                    <option>10</option>
+                    <option>12</option>
+                    <option>15</option>
+                    <option>20</option>
+                    <option>24</option>
+                    <option>25</option>
+                    <option>30</option>
+                    <option>35</option>
+                    <option>40</option>
+                    <option>45</option>
+                    <option>48</option>
+                    <option>50</option>
+                    <option>55</option>
+                    <option>55</option>
+                    <option>60</option>
+                    <option>65</option>
+                    <option>70</option>
+                    <option>75</option>
+                    <option>80</option>
+                    <option>85</option>
+                    <option>90</option>
+                    <option>95</option>
+                </select><select style="margin-left: 47px;">
+                    <option>sekundy</option>
+                    <option>minuty</option>
+                    <option>hodiny</option>
+                    <option>dny</option>
+                </select><button onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 129px;">Vlastní prodleva aktualizace</button>
+                <button onclick="UpdateDelay(this)">Neaktualizovat</button>
+            </div>
+        </div>
+        <div class="flex" style="height: 45%">
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Vzorky měření každou sekundu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('sResId', this)">–</div>
+                    </div>
+                    <div class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="sResId" class="t-body"></div>
+            </div> 
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulou minutu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('mResId', this)">–</div>
+                    </div>
+                    <div class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="mResId" class="t-body"></div>
+            </div> 
+        </div>
+        <div class="flex" style="height: 45%; margin-top: 15px;">
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulou hodinu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('hResId', this)">–</div>
+                    </div>
+                    <div class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="hResId" class="t-body"></div>
+            </div> 
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulý den</h3>
+                        <div class="hide-show" onclick="HideShowDiv('dResId', this)">–</div>
+                    </div>
+                    <div class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="dResId" class="t-body"></div>
+            </div> 
+        </div>
+            
+        <script type="text/javascript">            
+            const READY_STATE_FINISHED = 4;
+            const STATUS_OK = 200;
+            var BCKG = true;
+
+            function CreateMessageDiv(message, type)
+            {
+                let time_end = message.x * 1000 - 1;
+                if (type == 'm')
+                {
+                    message.x -= 60;
+                }
+                else if (type == 'h')
+                {
+                    message.x -= 3600;
+                }
+                else if (type == 'd')
+                {
+                    message.x -= 86400;
+                }
+                else
+                {
+                    time_end = 0;
+                }
+
+                const mainDiv = document.createElement("div");
+                mainDiv.classList.add("flex");
+                
+                const timeDiv = document.createElement("div");
+                timeDiv.style.width = "65%";
+                timeDiv.innerText = new Date(message.x * 1000).toLocaleString("cs", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+                if (time_end != 0)
+                {
+                    timeDiv.innerText += " - " + new Date(time_end).toLocaleTimeString("cs");
+                }
+                
+                const tempDiv = document.createElement("div");
+                tempDiv.style.width = "35%";
+                tempDiv.innerText = message.y.toFixed(3) + " °C";
+
+                mainDiv.appendChild(timeDiv);
+                mainDiv.appendChild(tempDiv);
+                if (BCKG)
+                {
+                    mainDiv.style.background = "#e0e0e0";
+                }
+                BCKG = !BCKG;
+
+                return mainDiv;
+            }
+
+            function UpdateDelay(btn)
+            {
+                let buttons = document.getElementsByTagName("button");
+                for (let i = 0; i < buttons.length; i++)
+                {
+                    buttons[i].classList.remove("btn-selected");
+                }
+                btn.classList.add("btn-selected");
+            }
+
+            function HideShowDiv(id, btn)
+            {
+                let div = document.getElementById(id);
+                console.log(btn.innerText);
+                if (btn.innerText == '+')
+                {
+                    div.style.display = "block";
+                    btn.style.padding = "3px 0px 5px 0px";
+                    div.parentNode.style.height = "100%"
+                    btn.innerText = "–";
+                }
+                else
+                {
+                    div.style.display = "none";
+                    btn.style.padding = "5px 0px 3px 0px";
+                    div.parentNode.style.height = "66px"
+                    btn.innerText = "+";
+                }
+            }
+
+            function AppendMessages(messages, sRes, mRes, hRes, dRes)
+            {         
+                BCKG = true;
+                for (let message of messages.s)
+                {
+                    sRes.appendChild(CreateMessageDiv(message, 's'));
+                }
+                BCKG = true;
+                for (let message of messages.m)
+                {
+                    mRes.appendChild(CreateMessageDiv(message, 'm'));
+                }
+                BCKG = true;
+                for (let message of messages.h)
+                {
+                    hRes.appendChild(CreateMessageDiv(message, 'h'));
+                }
+                BCKG = true;
+                for (let message of messages.d)
+                {
+                    dRes.appendChild(CreateMessageDiv(message, 'd'));
+                }
+            }
+        
+            function GetData()
+            {
+                let sRes = document.getElementById("sResId");
+                let mRes = document.getElementById("mResId");
+                let hRes = document.getElementById("hResId");
+                let dRes = document.getElementById("dResId");
+                AppendMessages(JSON.parse("{\"s\":[{\"x\":          1637147082,\"y\":22.415},{\"x\":          1637147083,\"y\":22.538},{\"x\":          1637147084,\"y\":22.538},{\"x\":          1637147085,\"y\":22.538},{\"x\":          1637147086,\"y\":22.415},{\"x\":          1637147087,\"y\":22.415},{\"x\":          1637147088,\"y\":22.538},{\"x\":          1637147089,\"y\":22.538},{\"x\":          1637147090,\"y\":22.415},{\"x\":          1637147091,\"y\":22.538},{\"x\":          1637147092,\"y\":22.538},{\"x\":          1637147093,\"y\":22.906},{\"x\":          1637147094,\"y\":22.538},{\"x\":          1637147095,\"y\":22.660},{\"x\":          1637147096,\"y\":22.538},{\"x\":          1637147097,\"y\":22.538},{\"x\":          1637147098,\"y\":22.538},{\"x\":          1637147099,\"y\":22.538},{\"x\":          1637147100,\"y\":22.538},{\"x\":          1637147101,\"y\":22.538},{\"x\":          1637147102,\"y\":22.538},{\"x\":          1637147103,\"y\":22.538},{\"x\":          1637147104,\"y\":22.538},{\"x\":          1637147105,\"y\":22.538},{\"x\":          1637147106,\"y\":22.660},{\"x\":          1637147107,\"y\":22.538},{\"x\":          1637147108,\"y\":22.538},{\"x\":          1637147109,\"y\":22.538},{\"x\":          1637147110,\"y\":23.028},{\"x\":          1637147111,\"y\":22.538},{\"x\":          1637147112,\"y\":22.538},{\"x\":          1637147113,\"y\":22.538},{\"x\":          1637147114,\"y\":22.538},{\"x\":          1637147115,\"y\":22.538},{\"x\":          1637147116,\"y\":22.538},{\"x\":          1637147117,\"y\":22.538},{\"x\":          1637147118,\"y\":22.538},{\"x\":          1637147119,\"y\":22.538},{\"x\":          1637147120,\"y\":22.538},{\"x\":          1637147121,\"y\":22.660},{\"x\":          1637147122,\"y\":22.538},{\"x\":          1637147123,\"y\":22.783},{\"x\":          1637147124,\"y\":22.538},{\"x\":          1637147125,\"y\":22.415},{\"x\":          1637147126,\"y\":22.538},{\"x\":          1637147127,\"y\":22.538},{\"x\":          1637147128,\"y\":22.538},{\"x\":          1637147129,\"y\":22.538},{\"x\":          1637147130,\"y\":22.538},{\"x\":          1637147131,\"y\":22.538},{\"x\":          1637147132,\"y\":22.538},{\"x\":          1637147133,\"y\":22.538},{\"x\":          1637147134,\"y\":22.660},{\"x\":          1637147135,\"y\":22.538},{\"x\":          1637147136,\"y\":22.660},{\"x\":          1637147137,\"y\":22.538},{\"x\":          1637147138,\"y\":22.660},{\"x\":          1637147139,\"y\":22.783},{\"x\":          1637147140,\"y\":23.273},{\"x\":          1637147141,\"y\":22.538},{\"x\":          1637147142,\"y\":22.660},{\"x\":          1637147143,\"y\":22.538},{\"x\":          1637147144,\"y\":22.415},{\"x\":          1637147145,\"y\":22.783},{\"x\":          1637147146,\"y\":22.538},{\"x\":          1637147147,\"y\":22.538},{\"x\":          1637147148,\"y\":22.660},{\"x\":          1637147149,\"y\":22.538},{\"x\":          1637147150,\"y\":22.538},{\"x\":          1637147151,\"y\":22.538},{\"x\":          1637147152,\"y\":22.538},{\"x\":          1637147153,\"y\":22.538},{\"x\":          1637147154,\"y\":22.538},{\"x\":          1637147155,\"y\":22.660},{\"x\":          1637147156,\"y\":22.660},{\"x\":          1637147157,\"y\":23.273},{\"x\":          1637147158,\"y\":22.538},{\"x\":          1637147159,\"y\":22.538},{\"x\":          1637147160,\"y\":22.538},{\"x\":          1637147161,\"y\":22.538},{\"x\":          1637147162,\"y\":22.660},{\"x\":          1637147163,\"y\":22.538},{\"x\":          1637147164,\"y\":22.660},{\"x\":          1637147165,\"y\":22.538},{\"x\":          1637147166,\"y\":22.538},{\"x\":          1637147167,\"y\":22.538},{\"x\":          1637147168,\"y\":22.538},{\"x\":          1637147169,\"y\":22.538},{\"x\":          1637147170,\"y\":22.538},{\"x\":          1637147171,\"y\":22.538},{\"x\":          1637147172,\"y\":22.538},{\"x\":          1637147173,\"y\":22.538},{\"x\":          1637147174,\"y\":23.151},{\"x\":          1637147175,\"y\":22.538},{\"x\":          1637147176,\"y\":22.660},{\"x\":          1637147177,\"y\":22.538},{\"x\":          1637147178,\"y\":22.538}],\"m\":[ {\"x\":          1637147100,\"y\":22.538},{\"x\":          1637147160,\"y\":22.597}],\"h\":[],\"d\":[]}"), sRes, mRes, hRes, dRes);
+                sRes.scrollTop = 999999999;
+                mRes.scrollTop = 999999999;
+                hRes.scrollTop = 999999999;
+                dRes.scrollTop = 999999999;
+                return;
+
+                let request = new XMLHttpRequest();
+                request.open("GET", "http://192.168.1.113/AllData", true);
+                request.onreadystatechange = function()
+                {
+                    if ((request.readyState == READY_STATE_FINISHED) && (request.status == STATUS_OK))
+                    {
+                        let sRes = document.getElementById("sResId");
+                        let mRes = document.getElementById("mResId");
+                        let hRes = document.getElementById("hResId");
+                        let dRes = document.getElementById("dResId");
+                        AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
+                        sRes.scrollTop = mRes.scrollTop = hRes.scrollTop = dRes.scrollTop = 999999999;
+                    }
+                }
+                request.send();
+            }
+        
+            document.addEventListener("DOMContentLoaded", GetData);
+        </script>
+    </body>
+</html>

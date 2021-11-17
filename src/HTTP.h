@@ -12,9 +12,13 @@
 #include "esp_eth.h"
 #include "esp_tls_crypto.h"
 #include <esp_http_server.h>
+#include <stdio.h>
 
 #include "data.h"
 
-httpd_handle_t start_webserver(void);
+#define JSON_OBJ_LEN 38
+#define INDEX_FILE_SIZE 10000
 
-#endif 
+esp_err_t start_webserver();
+
+#endif

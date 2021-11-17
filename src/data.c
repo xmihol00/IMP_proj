@@ -12,7 +12,7 @@ extern void uart_log_measurment(measurment_t *);
 extern void uart_print_measurment(measurment_t *);
 extern void uart_print_string(const char *);
 
-bool init_data()
+esp_err_t init_data()
 {
     data.days_pos = 0;
     data.hours_pos = 0;
@@ -24,7 +24,8 @@ bool init_data()
     data.minutes = calloc(MINUTES, sizeof(measurment_t));
     data.seconds = calloc(SECONDS, sizeof(measurment_t));
 
-    return !(data.days && data.hours && data.minutes && data.seconds);
+    
+    return data.days && data.hours && data.minutes && data.seconds ? ESP_OK : ESP_FAIL;
 }
 
 void store_measurment(float temperature)

@@ -5,14 +5,18 @@
 #include "SNTP.h"
 #include "data.h"
 #include "HTTP.h"
+#include "file.h"
+
+const char *TAG = "lol";
 
 void app_main(void)
 {
-    esp_log_level_set("*", ESP_LOG_ERROR); 
+    //esp_log_level_set("*", ESP_LOG_ERROR); 
     
     init_data();
     init_uart();
-    ESP_ERROR_CHECK(wifi_connect());
+    init_file_system();
+    wifi_connect();
     set_current_time();
     start_webserver();
     init_temperature();
