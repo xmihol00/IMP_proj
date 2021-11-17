@@ -92,8 +92,8 @@
         </style>
     </head>
     <body>
-        <div style="height: 6%; width: 100%;">
-            <div style="padding: 10px 100px;">
+        <div style="display: flex; justify-content: center;">
+            <div style="padding: 10px;">
                 <button class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
                 <button onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
                 <button onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
@@ -134,14 +134,14 @@
                 <button onclick="UpdateDelay(this)">Neaktualizovat</button>
             </div>
         </div>
-        <div class="flex" style="height: 45%">
+        <div id="topDivId" class="flex" style="height: 45%">
             <div class="data">
                 <div class="t-head">
                     <div class="flex p0">
                         <h3 class="headline">Vzorky měření každou sekundu</h3>
                         <div class="hide-show" onclick="HideShowDiv('sResId', this)">–</div>
                     </div>
-                    <div class="flex"> 
+                    <div id="sResIdhead" class="flex"> 
                         <div class="time"><b>Datum a čas měření</b></div> 
                         <div class="tmp"><b>Teplota</b></div> 
                     </div>
@@ -154,7 +154,7 @@
                         <h3 class="headline">Průměrná teplota za uplynulou minutu</h3>
                         <div class="hide-show" onclick="HideShowDiv('mResId', this)">–</div>
                     </div>
-                    <div class="flex"> 
+                    <div id="mResIdhead" class="flex"> 
                         <div class="time"><b>Datum a čas měření</b></div> 
                         <div class="tmp"><b>Teplota</b></div> 
                     </div>
@@ -162,14 +162,14 @@
                 <div id="mResId" class="t-body"></div>
             </div> 
         </div>
-        <div class="flex" style="height: 45%; margin-top: 15px;">
+        <div id="BotDivId" class="flex" style="height: 45%; margin-top: 15px;">
             <div class="data">
                 <div class="t-head">
                     <div class="flex p0">
                         <h3 class="headline">Průměrná teplota za uplynulou hodinu</h3>
                         <div class="hide-show" onclick="HideShowDiv('hResId', this)">–</div>
                     </div>
-                    <div class="flex"> 
+                    <div id="hResIdhead" class="flex"> 
                         <div class="time"><b>Datum a čas měření</b></div> 
                         <div class="tmp"><b>Teplota</b></div> 
                     </div>
@@ -182,7 +182,7 @@
                         <h3 class="headline">Průměrná teplota za uplynulý den</h3>
                         <div class="hide-show" onclick="HideShowDiv('dResId', this)">–</div>
                     </div>
-                    <div class="flex"> 
+                    <div id="dResIdhead" class="flex"> 
                         <div class="time"><b>Datum a čas měření</b></div> 
                         <div class="tmp"><b>Teplota</b></div> 
                     </div>
@@ -255,20 +255,39 @@
             function HideShowDiv(id, btn)
             {
                 let div = document.getElementById(id);
+                let head = document.getElementById(id + "head");
                 console.log(btn.innerText);
                 if (btn.innerText == '+')
                 {
                     div.style.display = "block";
+                    head.style.display = "flex";
                     btn.style.padding = "3px 0px 5px 0px";
-                    div.parentNode.style.height = "100%"
+                    div.parentNode.style.height = "100%";
                     btn.innerText = "–";
                 }
                 else
                 {
                     div.style.display = "none";
+                    head.style.display = "none";
                     btn.style.padding = "5px 0px 3px 0px";
-                    div.parentNode.style.height = "66px"
+                    div.parentNode.style.height = "38px";
                     btn.innerText = "+";
+                }
+
+                if (document.getElementById("sResId").style.display == "none" && document.getElementById("mResId").style.display == "none")
+                {
+                    document.getElementById("topDivId").style.height = "4%";
+                    document.getElementById("BotDivId").style.height = "86%";
+                }
+                else if (document.getElementById("hResId").style.display == "none" && document.getElementById("dResId").style.display == "none")
+                {
+                    document.getElementById("topDivId").style.height = "86%";
+                    document.getElementById("BotDivId").style.height = "4%";
+                }
+                else
+                {
+                    document.getElementById("topDivId").style.height = "45%";
+                    document.getElementById("BotDivId").style.height = "45%";
                 }
             }
 
