@@ -61,8 +61,7 @@ void store_measurment(float temperature)
 
 static void average_last_minute()
 {
-    int16_t pos = data.seconds_pos - SEC_IN_MIN;
-    pos = pos < 0 ? pos + SECONDS : pos;
+    uint16_t pos = data.seconds_pos - SEC_IN_MIN + SECONDS;
 
     float collected = 0.0;
     uint8_t measurments = 0;
@@ -87,8 +86,7 @@ static void average_last_minute()
 
 static void average_last_hour()
 {
-    int16_t pos = data.minutes_pos - MINS_IN_HOUR - 1;
-    pos = pos < 0 ? pos + (MINUTES << 1) : pos;
+    uint16_t pos = data.minutes_pos - MINS_IN_HOUR - 1 + MINUTES;
 
     float collected = 0.0;
     uint8_t measurments = 0;
@@ -113,8 +111,7 @@ static void average_last_hour()
 
 static void average_last_day()
 {
-    int16_t pos = data.minutes_pos - HOURS_IN_DAY - 1;
-    pos = pos < 0 ? pos + (HOURS << 1) : pos;
+    uint16_t pos = data.minutes_pos - HOURS_IN_DAY - 1 + HOURS;
 
     float collected = 0.0;
     uint8_t measurments = 0;

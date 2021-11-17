@@ -2,23 +2,8 @@
 
 static esp_err_t main_page(httpd_req_t *req)
 {
-    char *file_data = malloc(INDEX_FILE_SIZE);
-    if (file_data == NULL)
-    {
-        return ESP_FAIL;
-    }
-
-    FILE *file = fopen("/spiffs/index.html", "r");
-    if (file == NULL)
-    {
-        return ESP_FAIL;
-    }
-
-    uint16_t size = fread(file_data, 1, INDEX_FILE_SIZE, file);
-    httpd_resp_send(req, file_data, size);
-
-    free(file_data);
-    fclose(file);
+    main_page_t page = get_main_page();
+    httpd_resp_send(req, page.data, page.size);
     return ESP_OK;
 }
 
@@ -42,13 +27,16 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % SECONDS;
         if (data->seconds[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f},", data->seconds[modul].time, data->seconds[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->seconds[modul].time, data->seconds[modul].temperature);
             json_pos += JSON_OBJ_LEN;
         }
-
         data_pos++;
     }
 
+    if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
     json[json_pos - 1] = ']';
     json[json_pos++] = ',';
     strcpy(&json[json_pos], "\"m\":[ ");
@@ -61,12 +49,16 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % MINUTES;
         if (data->minutes[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f},", data->minutes[modul].time, data->minutes[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->minutes[modul].time, data->minutes[modul].temperature);
             json_pos += JSON_OBJ_LEN;
         }
         data_pos++;
     }
 
+    if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
     json[json_pos - 1] = ']';
     json[json_pos++] = ',';
     strcpy(&json[json_pos], "\"h\":[ ");
@@ -79,12 +71,16 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % HOURS;
         if (data->hours[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f},", data->hours[modul].time, data->hours[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->hours[modul].time, data->hours[modul].temperature);
             json_pos += JSON_OBJ_LEN;
         }
         data_pos++;
     }
 
+    if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
     json[json_pos - 1] = ']';
     json[json_pos++] = ',';
     strcpy(&json[json_pos], "\"d\":[ ");
@@ -97,51 +93,140 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % DAYS;
         if (data->days[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f},", data->days[modul].time, data->days[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->days[modul].time, data->days[modul].temperature);
             json_pos += JSON_OBJ_LEN;
         }
         data_pos++;
     }
 
+    if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
     json[json_pos - 1] = ']';
-    json[json_pos] = '}';
+    json[json_pos++] = '}';
 
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, json, HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, json, json_pos);
     free(json);
     return ESP_OK;
 }
 
 
-static esp_err_t post_handler(httpd_req_t *req)
+static esp_err_t update_n(httpd_req_t *req)
 {
-    /* Destination buffer for content of HTTP POST request.
-     * httpd_req_recv() accepts char* only, but content could
-     * as well be any binary data (needs type casting).
-     * In case of string data, null termination will be absent, and
-     * content length would give length of string */
-    char content[100];
+    char content[16];
 
-    /* Truncate if content length larger than the buffer */
-    size_t recv_size = MIN(req->content_len, sizeof(content));
+    uint8_t recv_size = MIN(req->content_len, 15);
 
     int ret = httpd_req_recv(req, content, recv_size);
-    if (ret <= 0) {  /* 0 return value indicates connection closed */
-        /* Check if timeout occurred */
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-            /* In case of timeout one can choose to retry calling
-             * httpd_req_recv(), but to keep it simple, here we
-             * respond with an HTTP 408 (Request Timeout) error */
+    if (ret <= 0) 
+    {  
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT) 
+        {
             httpd_resp_send_408(req);
         }
-        /* In case of error, returning ESP_FAIL will
-         * ensure that the underlying socket is closed */
         return ESP_FAIL;
     }
 
-    /* Send a simple response */
-    const char resp[] = "URI POST Response";
-    httpd_resp_send(req, resp, HTTPD_RESP_USE_STRLEN);
+    content[recv_size] = '\0';
+
+    int update_count = atoi(content);
+    if (update_count <= 0 || update_count >= SEC_IN_MIN)
+    {
+        return ESP_FAIL;
+    }
+
+    char *json = calloc(1, JSON_OBJ_LEN * (update_count + 3) + 50);
+    if (json == NULL)
+    {
+        return ESP_FAIL;
+    }
+
+    collected_data_t *data = get_data();
+    uint16_t data_pos = data->seconds_pos - update_count + SECONDS - 1;
+    bool min = false, hour = false, day = false;
+    uint16_t json_pos = 6;
+    uint16_t modul = 0;
+
+    strcpy(json, "{\"s\":[");
+    for (int i = 0; i < update_count; i++)
+    {
+        modul = data_pos % SECONDS;
+        if (data->seconds[modul].time != 0)
+        {
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->seconds[modul].time, data->seconds[modul].temperature);
+            json_pos += JSON_OBJ_LEN;
+
+            if (!(data->seconds[modul].time % SEC_IN_MIN))
+            {
+                min = true;
+                if (!(data->seconds[modul].time % SEC_IN_HOUR))
+                {
+                    hour = true;
+                    if (!(data->seconds[modul].time % SEC_IN_DAY))
+                    {
+                        day = true;
+                    }
+                }
+            }
+        }
+        data_pos++;
+    }
+
+    if (min)
+    {
+        if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
+        json[json_pos - 1] = ']';
+        json[json_pos++] = ',';
+        strcpy(&json[json_pos], "\"m\":[ ");
+        json_pos += 6;
+        sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->minutes[data->minutes_pos - 1].time, 
+                                                               data->minutes[data->minutes_pos - 1].temperature);
+        json_pos += JSON_OBJ_LEN;
+
+        if (hour)
+        {
+            if (json[json_pos - 2] == ',')
+            {
+                json[json_pos - 2] = ' ';
+            }
+            json[json_pos - 1] = ']';
+            json[json_pos++] = ',';
+            strcpy(&json[json_pos], "\"h\":[ ");
+            json_pos += 6;
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->hours[data->hours_pos - 1].time, 
+                                                                   data->hours[data->hours_pos - 1].temperature);
+            json_pos += JSON_OBJ_LEN;
+
+            if (day)
+            {
+                if (json[json_pos - 2] == ',')
+                {
+                    json[json_pos - 2] = ' ';
+                }
+                json[json_pos - 1] = ']';
+                json[json_pos++] = ',';
+                strcpy(&json[json_pos], "\"d\":[ ");
+                json_pos += 6;
+                sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}, ", data->days[data->days_pos - 1].time, 
+                                                                       data->days[data->days_pos - 1].temperature);
+                json_pos += JSON_OBJ_LEN;
+            }
+        }
+    }
+    
+    if (json[json_pos - 2] == ',')
+    {
+        json[json_pos - 2] = ' ';
+    }
+    json[json_pos - 1] = ']';
+    json[json_pos++] = '}';
+    
+    httpd_resp_send(req, json, json_pos);
     return ESP_OK;
 }
 
@@ -161,11 +246,11 @@ httpd_uri_t main_page_uri =
     .user_ctx = NULL
 };
 
-/* URI handler structure for POST /uri */
-httpd_uri_t uri_post = {
-    .uri      = "/",
+httpd_uri_t uri_update_n = 
+{
+    .uri      = "/Update",
     .method   = HTTP_POST,
-    .handler  = post_handler,
+    .handler  = update_n,
     .user_ctx = NULL
 };
 
@@ -184,7 +269,7 @@ esp_err_t start_webserver()
         /* Register URI handlers */
         httpd_register_uri_handler(server, &main_page_uri);
         httpd_register_uri_handler(server, &all_data_uri);
-        httpd_register_uri_handler(server, &uri_post);
+        httpd_register_uri_handler(server, &uri_update_n);
     }
     /* If server failed to start, handle will be NULL */
     return server ? ESP_OK : ESP_FAIL;

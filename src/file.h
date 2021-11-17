@@ -8,6 +8,16 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 
-esp_err_t init_file_system();
+#define INDEX_FILE_SIZE 20000
+
+typedef struct 
+{
+    char *data;
+    uint16_t size;
+} main_page_t;
+
+void init_file_system();
+
+main_page_t get_main_page();
 
 #endif

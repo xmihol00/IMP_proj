@@ -83,6 +83,8 @@
             select {
                 height: 35px;
                 padding: 0px 5px;
+                font-size: 14px;
+                font-weight: 600;
                 cursor: pointer;
                 border: 2px solid #555;
                 border-right: none;
@@ -94,15 +96,19 @@
     <body>
         <div style="display: flex; justify-content: center;">
             <div style="padding: 10px;">
-                <button class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
-                <button onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
-                <button onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
-                <button onclick="UpdateDelay(this)">Aktualizovat každý den</button>
-                <select style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem;">
+                <button id="1s" class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
+                <button id="1m" onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
+                <button id="1h" onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
+                <button id="1d" onclick="UpdateDelay(this)">Aktualizovat každý den</button>
+                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem;">
+                    <option>02</option>
                     <option>03</option>
                     <option>04</option>
-                    <option>05</option>
+                    <option selected>05</option>
+                    <option>06</option>
+                    <option>07</option>
                     <option>08</option>
+                    <option>09</option>
                     <option>10</option>
                     <option>12</option>
                     <option>15</option>
@@ -118,20 +124,16 @@
                     <option>55</option>
                     <option>55</option>
                     <option>60</option>
-                    <option>65</option>
                     <option>70</option>
-                    <option>75</option>
                     <option>80</option>
-                    <option>85</option>
                     <option>90</option>
-                    <option>95</option>
-                </select><select style="margin-left: 47px;">
-                    <option>sekundy</option>
-                    <option>minuty</option>
-                    <option>hodiny</option>
-                    <option>dny</option>
-                </select><button onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 129px;">Vlastní prodleva aktualizace</button>
-                <button onclick="UpdateDelay(this)">Neaktualizovat</button>
+                </select><select id="Sel1Id" style="margin-left: 48px;">
+                    <option value="s">sekundy</option>
+                    <option value="m">minuty</option>
+                    <option value="h">hodiny</option>
+                    <option value="d">dny</option>
+                </select><button id="my" onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 137px;">Vlastní prodleva aktualizace</button>
+                <button id="No" onclick="UpdateDelay(this)">Neaktualizovat</button>
             </div>
         </div>
         <div id="topDivId" class="flex" style="height: 45%">
@@ -187,7 +189,7 @@
                         <div class="tmp"><b>Teplota</b></div> 
                     </div>
                 </div>
-                <div id="dResId" class="t-body"></div>
+                <div id="dResId" class="t-body"> </div>
             </div> 
         </div>
             
@@ -195,6 +197,8 @@
             const READY_STATE_FINISHED = 4;
             const STATUS_OK = 200;
             var BCKG = true;
+            var UPDATE_CNT = 1;
+            var INTERVAL = null;
 
             function CreateMessageDiv(message, type)
             {
@@ -250,13 +254,42 @@
                     buttons[i].classList.remove("btn-selected");
                 }
                 btn.classList.add("btn-selected");
+
+                if (btn.id == "1s")
+                {
+                    UPDATE_CNT = 1;
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(UpdateData, 1000);
+                }
+                else if (btn.id == "1m")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 60000);
+                }
+                else if (btn.id == "1h")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 3600000);
+                }
+                else if (btn.id == "1d")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 86400000);
+                }
+                else if (btn.id == "No")
+                {
+                    clearInterval(INTERVAL);
+                }
+                else if (btn.id == "My")
+                {
+
+                }
             }
 
             function HideShowDiv(id, btn)
             {
                 let div = document.getElementById(id);
                 let head = document.getElementById(id + "head");
-                console.log(btn.innerText);
                 if (btn.innerText == '+')
                 {
                     div.style.display = "block";
@@ -293,23 +326,23 @@
 
             function AppendMessages(messages, sRes, mRes, hRes, dRes)
             {         
-                BCKG = true;
+                BCKG = sRes.lastChild && sRes.lastChild.style.background == "";
                 for (let message of messages.s)
                 {
                     sRes.appendChild(CreateMessageDiv(message, 's'));
                 }
-                BCKG = true;
-                for (let message of messages.m)
+                BCKG = mRes.lastChild && mRes.lastChild.style.background == "";
+                for (let message of messages.m || [])
                 {
                     mRes.appendChild(CreateMessageDiv(message, 'm'));
                 }
-                BCKG = true;
-                for (let message of messages.h)
+                BCKG = hRes.lastChild && hRes.lastChild.style.background == "";
+                for (let message of messages.h || [])
                 {
                     hRes.appendChild(CreateMessageDiv(message, 'h'));
                 }
-                BCKG = true;
-                for (let message of messages.d)
+                BCKG = dRes.lastChild && dRes.lastChild.style.background == "";
+                for (let message of messages.d || [])
                 {
                     dRes.appendChild(CreateMessageDiv(message, 'd'));
                 }
@@ -317,17 +350,6 @@
         
             function GetData()
             {
-                let sRes = document.getElementById("sResId");
-                let mRes = document.getElementById("mResId");
-                let hRes = document.getElementById("hResId");
-                let dRes = document.getElementById("dResId");
-                AppendMessages(JSON.parse("{\"s\":[{\"x\":          1637147082,\"y\":22.415},{\"x\":          1637147083,\"y\":22.538},{\"x\":          1637147084,\"y\":22.538},{\"x\":          1637147085,\"y\":22.538},{\"x\":          1637147086,\"y\":22.415},{\"x\":          1637147087,\"y\":22.415},{\"x\":          1637147088,\"y\":22.538},{\"x\":          1637147089,\"y\":22.538},{\"x\":          1637147090,\"y\":22.415},{\"x\":          1637147091,\"y\":22.538},{\"x\":          1637147092,\"y\":22.538},{\"x\":          1637147093,\"y\":22.906},{\"x\":          1637147094,\"y\":22.538},{\"x\":          1637147095,\"y\":22.660},{\"x\":          1637147096,\"y\":22.538},{\"x\":          1637147097,\"y\":22.538},{\"x\":          1637147098,\"y\":22.538},{\"x\":          1637147099,\"y\":22.538},{\"x\":          1637147100,\"y\":22.538},{\"x\":          1637147101,\"y\":22.538},{\"x\":          1637147102,\"y\":22.538},{\"x\":          1637147103,\"y\":22.538},{\"x\":          1637147104,\"y\":22.538},{\"x\":          1637147105,\"y\":22.538},{\"x\":          1637147106,\"y\":22.660},{\"x\":          1637147107,\"y\":22.538},{\"x\":          1637147108,\"y\":22.538},{\"x\":          1637147109,\"y\":22.538},{\"x\":          1637147110,\"y\":23.028},{\"x\":          1637147111,\"y\":22.538},{\"x\":          1637147112,\"y\":22.538},{\"x\":          1637147113,\"y\":22.538},{\"x\":          1637147114,\"y\":22.538},{\"x\":          1637147115,\"y\":22.538},{\"x\":          1637147116,\"y\":22.538},{\"x\":          1637147117,\"y\":22.538},{\"x\":          1637147118,\"y\":22.538},{\"x\":          1637147119,\"y\":22.538},{\"x\":          1637147120,\"y\":22.538},{\"x\":          1637147121,\"y\":22.660},{\"x\":          1637147122,\"y\":22.538},{\"x\":          1637147123,\"y\":22.783},{\"x\":          1637147124,\"y\":22.538},{\"x\":          1637147125,\"y\":22.415},{\"x\":          1637147126,\"y\":22.538},{\"x\":          1637147127,\"y\":22.538},{\"x\":          1637147128,\"y\":22.538},{\"x\":          1637147129,\"y\":22.538},{\"x\":          1637147130,\"y\":22.538},{\"x\":          1637147131,\"y\":22.538},{\"x\":          1637147132,\"y\":22.538},{\"x\":          1637147133,\"y\":22.538},{\"x\":          1637147134,\"y\":22.660},{\"x\":          1637147135,\"y\":22.538},{\"x\":          1637147136,\"y\":22.660},{\"x\":          1637147137,\"y\":22.538},{\"x\":          1637147138,\"y\":22.660},{\"x\":          1637147139,\"y\":22.783},{\"x\":          1637147140,\"y\":23.273},{\"x\":          1637147141,\"y\":22.538},{\"x\":          1637147142,\"y\":22.660},{\"x\":          1637147143,\"y\":22.538},{\"x\":          1637147144,\"y\":22.415},{\"x\":          1637147145,\"y\":22.783},{\"x\":          1637147146,\"y\":22.538},{\"x\":          1637147147,\"y\":22.538},{\"x\":          1637147148,\"y\":22.660},{\"x\":          1637147149,\"y\":22.538},{\"x\":          1637147150,\"y\":22.538},{\"x\":          1637147151,\"y\":22.538},{\"x\":          1637147152,\"y\":22.538},{\"x\":          1637147153,\"y\":22.538},{\"x\":          1637147154,\"y\":22.538},{\"x\":          1637147155,\"y\":22.660},{\"x\":          1637147156,\"y\":22.660},{\"x\":          1637147157,\"y\":23.273},{\"x\":          1637147158,\"y\":22.538},{\"x\":          1637147159,\"y\":22.538},{\"x\":          1637147160,\"y\":22.538},{\"x\":          1637147161,\"y\":22.538},{\"x\":          1637147162,\"y\":22.660},{\"x\":          1637147163,\"y\":22.538},{\"x\":          1637147164,\"y\":22.660},{\"x\":          1637147165,\"y\":22.538},{\"x\":          1637147166,\"y\":22.538},{\"x\":          1637147167,\"y\":22.538},{\"x\":          1637147168,\"y\":22.538},{\"x\":          1637147169,\"y\":22.538},{\"x\":          1637147170,\"y\":22.538},{\"x\":          1637147171,\"y\":22.538},{\"x\":          1637147172,\"y\":22.538},{\"x\":          1637147173,\"y\":22.538},{\"x\":          1637147174,\"y\":23.151},{\"x\":          1637147175,\"y\":22.538},{\"x\":          1637147176,\"y\":22.660},{\"x\":          1637147177,\"y\":22.538},{\"x\":          1637147178,\"y\":22.538}],\"m\":[ {\"x\":          1637147100,\"y\":22.538},{\"x\":          1637147160,\"y\":22.597}],\"h\":[],\"d\":[]}"), sRes, mRes, hRes, dRes);
-                sRes.scrollTop = 999999999;
-                mRes.scrollTop = 999999999;
-                hRes.scrollTop = 999999999;
-                dRes.scrollTop = 999999999;
-                return;
-
                 let request = new XMLHttpRequest();
                 request.open("GET", "http://192.168.1.113/AllData", true);
                 request.onreadystatechange = function()
@@ -338,14 +360,49 @@
                         let mRes = document.getElementById("mResId");
                         let hRes = document.getElementById("hResId");
                         let dRes = document.getElementById("dResId");
+                        sRes.innerHTML = "";
+                        mRes.innerHTML = "";
+                        dRes.innerHTML = "";
+                        hRes.innerHTML = "";
                         AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
-                        sRes.scrollTop = mRes.scrollTop = hRes.scrollTop = dRes.scrollTop = 999999999;
+                        sRes.scrollTop = 999999999;
+                        mRes.scrollTop = 999999999;
+                        hRes.scrollTop = 999999999;
+                        dRes.scrollTop = 999999999;
                     }
                 }
                 request.send();
             }
-        
-            document.addEventListener("DOMContentLoaded", GetData);
+
+            function UpdateData()
+            {             
+                let request = new XMLHttpRequest();
+                request.open("POST", "http://192.168.1.113/Update", true);
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;")
+                request.onreadystatechange = function()
+                {
+                    if ((request.readyState == READY_STATE_FINISHED) && (request.status == STATUS_OK))
+                    {
+                        let sRes = document.getElementById("sResId");
+                        let mRes = document.getElementById("mResId");
+                        let hRes = document.getElementById("hResId");
+                        let dRes = document.getElementById("dResId");
+                        AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
+                        sRes.scrollTop = 999999999;
+                        mRes.scrollTop = 999999999;
+                        hRes.scrollTop = 999999999;
+                        dRes.scrollTop = 999999999;
+                    }
+                }
+                request.send(UPDATE_CNT);
+            }
+
+            document.addEventListener("DOMContentLoaded", () => 
+            { 
+                GetData();
+                INTERVAL = setInterval(UpdateData, 1000);
+            });
         </script>
     </body>
 </html>
+

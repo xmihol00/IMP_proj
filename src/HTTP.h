@@ -15,9 +15,9 @@
 #include <stdio.h>
 
 #include "data.h"
+#include "file.h"
 
-#define JSON_OBJ_LEN 38
-#define INDEX_FILE_SIZE 10000
+#define JSON_OBJ_LEN 39
 
 esp_err_t start_webserver();
 
