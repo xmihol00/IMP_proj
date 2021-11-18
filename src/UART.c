@@ -74,7 +74,7 @@ void uart_print_measurment(measurment_t *measurment)
 {
 	struct tm local_time;
 	localtime_r(&measurment->time, &local_time);
-	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "%c", &local_time) - 5], ": %.3f °C\r\n", measurment->temperature);
+	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "| %c", &local_time) - 5], ": %.3f °C\t|\r\n", measurment->temperature);
 
 	uart_write_bytes(ACTIVE_UART, send_buffer, strlen(send_buffer));
 	vTaskDelay(25 / portTICK_RATE_MS);
