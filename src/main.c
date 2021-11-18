@@ -11,12 +11,13 @@ const char *TAG = "lol";
 
 void app_main(void)
 {
-    //esp_log_level_set("*", ESP_LOG_ERROR); 
+    esp_log_level_set("*", ESP_LOG_ERROR); 
     
     init_data();
     init_uart();
     init_file_system();
     wifi_connect();
+    initialize_sntp();
     set_current_time();
     start_webserver();
     init_temperature();

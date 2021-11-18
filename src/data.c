@@ -183,7 +183,7 @@ uint8_t print_samples(uint16_t count, char unit)
                 pos = data.days_pos - count;
                 pos = pos < 0 ? pos + DAYS : pos;
                 modulator = DAYS;
-                sprintf(buffer, "|     AVERAGE TEMPERATURE OVER LAST %3d DAY%c     |\r\n", count, count > 1 ? 'S' : ' ');
+                sprintf(buffer, "|    AVERAGE TEMPERATURE OVER LAST %d DAY%c\t|\r\n", count, count > 1 ? 'S' : ' ');
                 break;
             }
             return 4;
@@ -195,7 +195,7 @@ uint8_t print_samples(uint16_t count, char unit)
                 pos = data.hours_pos - count;
                 pos = pos < 0 ? pos + HOURS : pos;
                 modulator = HOURS;
-                sprintf(buffer, "|     AVERAGE TEMPERATURE OVER LAST %3d HOUR%c    |\r\n", count, count > 1 ? 'S' : ' ');
+                sprintf(buffer, "|    AVERAGE TEMPERATURE OVER LAST %d HOUR%c\t|\r\n", count, count > 1 ? 'S' : ' ');
                 break;
             }
             return 4;
@@ -207,7 +207,7 @@ uint8_t print_samples(uint16_t count, char unit)
                 pos = data.minutes_pos - count;
                 pos = pos < 0 ? pos + MINUTES : pos;
                 modulator = MINUTES;
-                sprintf(buffer, "|    AVERAGE TEMPERATURE OVER LAST %3d MINUTE%c   |\r\n", count, count > 1 ? 'S' : ' ');
+                sprintf(buffer, "|   AVERAGE TEMPERATURE OVER LAST %d MINUTE%c\t|\r\n", count, count > 1 ? 'S' : ' ');
                 break;
             }
             return 4;
@@ -219,7 +219,7 @@ uint8_t print_samples(uint16_t count, char unit)
                 pos = data.seconds_pos - count;
                 pos = pos < 0 ? pos + SECONDS : pos;
                 modulator = SECONDS;
-                sprintf(buffer, "|    TEMPERATURE SAMPLES OVER LAST %3d SECOND%c   |\r\n", count, count > 1 ? 'S' : ' ');
+                sprintf(buffer, "|   TEMPERATURE SAMPLES OVER LAST %d SECOND%c\t|\r\n", count, count > 1 ? 'S' : ' ');
                 break;
             }
             return 4;
@@ -228,9 +228,9 @@ uint8_t print_samples(uint16_t count, char unit)
             return 4;
     }
     
-    uart_print_string("+--------------------------------------------------------+\r\n");
+    uart_print_string("+-----------------------------------------------+\r\n");
     uart_print_string(buffer);
-    uart_print_string("+--------------------------------------------------------+\r\n");
+    uart_print_string("+-----------------------------------------------+\r\n");
     for (uint16_t i = 0; i < count; i++)
     {
         if (selected[pos % modulator].time != 0)
@@ -239,7 +239,7 @@ uint8_t print_samples(uint16_t count, char unit)
         }
         pos++;
     }
-    uart_print_string("+--------------------------------------------------------+\r\n");
+    uart_print_string("+-----------------------------------------------+\r\n");
 
     return 0;
 }

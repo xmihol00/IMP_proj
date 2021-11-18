@@ -74,7 +74,7 @@ void uart_print_measurment(measurment_t *measurment)
 {
 	struct tm local_time;
 	localtime_r(&measurment->time, &local_time);
-	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "| %c", &local_time) - 5], ": %.3f °C\t|\r\n", measurment->temperature);
+	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "| %c", &local_time) - 5], ":       \t     %3.3f °C\t|\r\n", measurment->temperature);
 
 	uart_write_bytes(ACTIVE_UART, send_buffer, strlen(send_buffer));
 	vTaskDelay(25 / portTICK_RATE_MS);
@@ -102,7 +102,8 @@ static void parse_input()
 	if (recieve_buffer[recieve_buffer_pos] == 's')
 	{
 		recieve_buffer_pos++;
-		if (isspace(recieve_buffer[recieve_buffer_pos]) || (strncmp(&recieve_buffer[recieve_buffer_pos += 5], "tatus", 5) && isspace(recieve_buffer[recieve_buffer_pos])))
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "tatus", 5) && isspace(recieve_buffer[recieve_buffer_pos += 5])))
 		{
 			print_status();
 		}
@@ -114,7 +115,8 @@ static void parse_input()
 	else if (recieve_buffer[recieve_buffer_pos] == 'p')
 	{
 		recieve_buffer_pos++;
-		if (isspace(recieve_buffer[recieve_buffer_pos]) || (strncmp(&recieve_buffer[recieve_buffer_pos += 4], "rint", 4) && isspace(recieve_buffer[recieve_buffer_pos])))
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "rint", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4])))
 		{
 			skip_buffer_spaces();
 
@@ -139,7 +141,8 @@ static void parse_input()
 	else if (recieve_buffer[recieve_buffer_pos] == 'l')
 	{
 		recieve_buffer_pos++;
-		if (isspace(recieve_buffer[recieve_buffer_pos]) || (strncmp(&recieve_buffer[recieve_buffer_pos += 2], "og", 2) && isspace(recieve_buffer[recieve_buffer_pos])))
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "og", 2) && isspace(recieve_buffer[recieve_buffer_pos += 2])))
 		{
 			skip_buffer_spaces();
 
@@ -163,9 +166,42 @@ static void parse_input()
 	}
 	else if (recieve_buffer[recieve_buffer_pos] == 'h')
 	{
-
+		recieve_buffer_pos++;
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "elp", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
+		{
+			skip_buffer_spaces();
+			uart_print_string("Here will be help message...\r\n");
+		}
+		else
+		{
+			unrecognized = 3;
+		}
 	}
-	else
+	else if (recieve_buffer[recieve_buffer_pos] == 't')
+	{
+		recieve_buffer_pos++;
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "ime", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
+		{
+			skip_buffer_spaces();
+			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "sync", 4))
+			{
+				uart_print_string("Synchronizing...\r\n");
+				set_current_time();
+				print_status();
+			}
+			else
+			{
+				unrecognized = 2;
+			}
+		}
+		else
+		{
+			unrecognized = 3;
+		}
+	}
+	else if (recieve_buffer[recieve_buffer_pos - 1] != '\n')
 	{
 		unrecognized = 1;
 	}

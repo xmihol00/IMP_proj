@@ -19,6 +19,8 @@
 
 void set_current_time();
 
+void initialize_sntp();
+
 time_t get_last_sync();
 time_t get_start_time();
 
