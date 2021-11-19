@@ -50,11 +50,20 @@ esp_err_t wifi_disconnect()
 
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    esp_err_t err = esp_wifi_connect();
-    if (err == ESP_ERR_WIFI_NOT_STARTED) {
-        return;
-    }
-    ESP_ERROR_CHECK(err);
+    gpio_pad_select_gpio(GPIO_LED_RED);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_LED_RED, 1);
+    
+    esp_err_t err;
+    do
+    {
+        err = esp_wifi_connect();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+    } 
+    while (err != ESP_OK);
+
+    gpio_set_level(GPIO_LED_RED, 0);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_DISABLE);
 }
 
 static void wifi_start()

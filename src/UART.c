@@ -121,7 +121,7 @@ static void parse_input()
 			skip_buffer_spaces();
 
 			parsed = atoi(&recieve_buffer[recieve_buffer_pos]);
-			if (parsed < 0)
+			if (parsed <= 0)
 			{
 				unrecognized = 2;
 			}
@@ -153,7 +153,7 @@ static void parse_input()
 			else
 			{
 				parsed = atoi(&recieve_buffer[recieve_buffer_pos]);
-				if (parsed < 0)
+				if (parsed <= 0)
 				{
 					unrecognized = 2;
 				}
@@ -208,7 +208,7 @@ static void parse_input()
 		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "ime", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
 		{
 			skip_buffer_spaces();
-			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "sync", 4))
+			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "sync", 4) && isspace(recieve_buffer[recieve_buffer_pos += 3]))
 			{
 				uart_print_string("Synchronizing...\r\n");
 				set_current_time();

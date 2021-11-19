@@ -8,7 +8,7 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 
-#define INDEX_FILE_SIZE 20000
+#define INDEX_FILE_SIZE 10500
 
 typedef struct 
 {

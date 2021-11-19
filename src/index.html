@@ -1,0 +1,444 @@
+<html>
+    <head>
+        <title>IMP projekt</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <style type="text/css">
+            body {
+                margin: 0px;
+                height: 100%;
+                overflow: hidden;
+            }
+            .flex {
+                display: flex;
+                padding: 5px 10px;
+            }
+            .p0 {
+                padding: 0px !important;
+            }
+            .data {
+                height: 100%; 
+                width: 47%; 
+                margin-left: 2%;
+                margin-right: 1%; 
+                border: solid #aaa 1px;
+                position: relative;
+            }
+            .data:last-child {
+                margin-left: 1%;
+                margin-right: 2%;
+            }
+            .t-head {
+                position: fixed; 
+                width: calc(47% - 2px); 
+                background-color: #34ebbd; 
+                z-index: 5;
+                border-bottom: solid 2px gray;
+            }
+            .t-body {
+                margin-top: 67px; 
+                height: calc(100% - 67px); 
+                overflow: auto;
+                background-color: #fff;
+            }
+            .headline {
+                text-align: center;
+                margin: 0px;
+                padding: 7px 0px;
+                border-bottom: solid #aaa 1px;
+                background-color: #3c0080;
+                color: #fff;
+                width: 90%;
+            }
+            .hide-show {
+                width: 10%;
+                text-align: center;
+                color: #fff;
+                margin: 0px;
+                padding: 3px 0px 5px 0px;
+                border-bottom: solid #aaa 1px;
+                background-color: #3c0080;
+                font-weight: 1000;
+                font-size: 25px;
+                cursor: pointer;
+            }
+            .hide-show:hover {
+                background-color: #4032a8;
+            }
+            .tmp {
+                width: 35%;
+            }
+            .time {
+                width: 65%;
+            }
+            body {
+                background-color: lightblue;
+            }
+            button {
+                height: 35px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                border-radius: 0.25rem;
+                background-color: #efefef;
+                border: 2px solid #555;
+                margin-left: 2px;
+                margin-right: 2px;
+            }
+            button:hover {
+                background-color: #3232a8;
+                color: #fff;
+            }
+            .btn-selected {
+                background-color: #3232a8;
+                color: #fff;
+            }
+            select {
+                height: 35px;
+                padding: 0px 5px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                border: 2px solid #555;
+                border-right: none;
+                background-color: #efefef;
+                position: absolute;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; padding-top: 15px;">
+            <div style="padding: 0px 0px 15px 3px;">
+                <button id="1s" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
+                <button id="1m" class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
+                <button id="1h" onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
+                <button id="1d" onclick="UpdateDelay(this)">Aktualizovat každý den</button>
+            </div>
+            <div style="padding: 0px 0px 15px 3px;;">
+                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem; width: 48px;">
+                    <option>01</option>
+                    <option>02</option>
+                    <option>03</option>
+                    <option>04</option>
+                    <option selected>05</option>
+                    <option>06</option>
+                    <option>07</option>
+                    <option>08</option>
+                    <option>09</option>
+                    <option>10</option>
+                    <option>12</option>
+                    <option>15</option>
+                    <option>20</option>
+                    <option>24</option>
+                    <option>25</option>
+                    <option>30</option>
+                    <option>35</option>
+                    <option>40</option>
+                    <option>45</option>
+                    <option>48</option>
+                    <option>50</option>
+                    <option>55</option>
+                    <option>55</option>
+                    <option>60</option>
+                    <option>70</option>
+                    <option>80</option>
+                    <option>90</option>
+                </select><select id="Sel1Id" style="margin-left: 48px; width: 89px;">
+                    <option value="s">sekundy</option>
+                    <option value="m">minuty</option>
+                    <option value="h">hodiny</option>
+                    <option value="d">dny</option>
+                </select><button id="my" onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 137px;">Vlastní prodleva aktualizace</button>
+                <button id="no" onclick="UpdateDelay(this)">Neaktualizovat</button>                
+            </div>
+        </div>
+        <div id="topDivId" style="height: 45%; display: flex;">
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Vzorky měření každou sekundu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('sResId', this)">–</div>
+                    </div>
+                    <div id="sResIdhead" class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="sResId" class="t-body"></div>
+            </div> 
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulou minutu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('mResId', this)">–</div>
+                    </div>
+                    <div id="mResIdhead" class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="mResId" class="t-body"></div>
+            </div> 
+        </div>
+        <div id="BotDivId" style="height: 45%; margin-top: 15px; display: flex;">
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulou hodinu</h3>
+                        <div class="hide-show" onclick="HideShowDiv('hResId', this)">–</div>
+                    </div>
+                    <div id="hResIdhead" class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="hResId" class="t-body"></div>
+            </div> 
+            <div class="data">
+                <div class="t-head">
+                    <div class="flex p0">
+                        <h3 class="headline">Průměrná teplota za uplynulý den</h3>
+                        <div class="hide-show" onclick="HideShowDiv('dResId', this)">–</div>
+                    </div>
+                    <div id="dResIdhead" class="flex"> 
+                        <div class="time"><b>Datum a čas měření</b></div> 
+                        <div class="tmp"><b>Teplota</b></div> 
+                    </div>
+                </div>
+                <div id="dResId" class="t-body"> </div>
+            </div> 
+        </div>
+            
+        <script type="text/javascript">            
+            const READY_STATE_FINISHED = 4;
+            const STATUS_OK = 200;
+            var BCKG = true;
+            var UPDATE_CNT = 1;
+            var INTERVAL = null;
+
+            function CreateMessageDiv(message, type)
+            {
+                let time_end = message.x * 1000 - 1;
+                if (type == 'm')
+                {
+                    message.x -= 60;
+                }
+                else if (type == 'h')
+                {
+                    message.x -= 3600;
+                }
+                else if (type == 'd')
+                {
+                    message.x -= 86400;
+                }
+                else
+                {
+                    time_end = 0;
+                }
+
+                const mainDiv = document.createElement("div");
+                mainDiv.classList.add("flex");
+                
+                const timeDiv = document.createElement("div");
+                timeDiv.style.width = "65%";
+                timeDiv.innerText = new Date(message.x * 1000).toLocaleString("cs", { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" });
+                if (time_end != 0)
+                {
+                    timeDiv.innerText += " - " + new Date(time_end).toLocaleTimeString("cs");
+                }
+                
+                const tempDiv = document.createElement("div");
+                tempDiv.style.width = "35%";
+                tempDiv.innerText = message.y.toFixed(3) + " °C";
+
+                mainDiv.appendChild(timeDiv);
+                mainDiv.appendChild(tempDiv);
+                if (BCKG)
+                {
+                    mainDiv.style.background = "#e0e0e0";
+                }
+                BCKG = !BCKG;
+
+                return mainDiv;
+            }
+
+            function UpdateDelay(btn)
+            {
+                let buttons = document.getElementsByTagName("button");
+                for (let i = 0; i < buttons.length; i++)
+                {
+                    buttons[i].classList.remove("btn-selected");
+                }
+                btn.classList.add("btn-selected");
+
+                if (btn.id == "1s")
+                {
+                    UPDATE_CNT = 1;
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(UpdateData, 1000);
+                }
+                else if (btn.id == "1m")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 60000);
+                }
+                else if (btn.id == "1h")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 3600000);
+                }
+                else if (btn.id == "1d")
+                {
+                    clearInterval(INTERVAL);
+                    INTERVAL = setInterval(GetData, 86400000);
+                }
+                else if (btn.id == "no")
+                {
+                    clearInterval(INTERVAL);
+                }
+                else if (btn.id == "my")
+                {
+                    let unit = document.getElementById("Sel1Id").value;
+                    let value = Number.parseInt(document.getElementById("Sel2Id").value);
+                    if (unit == "s")
+                    {
+                        clearInterval(INTERVAL);
+                        if (value < 60)
+                        {
+                            UPDATE_CNT = value;
+                            INTERVAL = setInterval(UpdateData, value * 1000);
+                        }
+                        else
+                        {
+                            INTERVAL = setInterval(GetData, value * 1000);
+                        }
+                    }
+                    else if (unit == "m")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 60000);
+                    }
+                    else if (unit == "h")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 3600000);
+                    }
+                    else if (unit == "d")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 86400000);
+                    }
+                }
+            }
+
+            function HideShowDiv(id, btn)
+            {
+                let div = document.getElementById(id);
+                let head = document.getElementById(id + "head");
+                if (btn.innerText == '+')
+                {
+                    div.style.display = "block";
+                    head.style.display = "flex";
+                    btn.style.padding = "3px 0px 5px 0px";
+                    div.parentNode.style.height = "100%";
+                    btn.innerText = "–";
+                }
+                else
+                {
+                    div.style.display = "none";
+                    head.style.display = "none";
+                    btn.style.padding = "5px 0px 3px 0px";
+                    div.parentNode.style.height = "38px";
+                    btn.innerText = "+";
+                }
+
+                if (document.getElementById("sResId").style.display == "none" && document.getElementById("mResId").style.display == "none")
+                {
+                    document.getElementById("topDivId").style.height = "4%";
+                    document.getElementById("BotDivId").style.height = "86%";
+                }
+                else if (document.getElementById("hResId").style.display == "none" && document.getElementById("dResId").style.display == "none")
+                {
+                    document.getElementById("topDivId").style.height = "86%";
+                    document.getElementById("BotDivId").style.height = "4%";
+                }
+                else
+                {
+                    document.getElementById("topDivId").style.height = "45%";
+                    document.getElementById("BotDivId").style.height = "45%";
+                }
+            }
+
+            function AppendMessages(messages, sRes, mRes, hRes, dRes)
+            {         
+                BCKG = sRes.firstChild && sRes.firstChild.style.background == "";
+                for (let message of messages.s)
+                {
+                    sRes.prepend(CreateMessageDiv(message, 's'));
+                }
+                BCKG = mRes.firstChild && mRes.firstChild.style.background == "";
+                for (let message of messages.m || [])
+                {
+                    mRes.prepend(CreateMessageDiv(message, 'm'));
+                }
+                BCKG = hRes.firstChild && hRes.firstChild.style.background == "";
+                for (let message of messages.h || [])
+                {
+                    hRes.prepend(CreateMessageDiv(message, 'h'));
+                }
+                BCKG = dRes.firstChild && dRes.firstChild.style.background == "";
+                for (let message of messages.d || [])
+                {
+                    dRes.prepend(CreateMessageDiv(message, 'd'));
+                }
+            }
+        
+            function GetData()
+            {
+                let request = new XMLHttpRequest();
+                request.open("GET", "http://192.168.1.113/AllData", true);
+                request.onreadystatechange = function()
+                {
+                    if ((request.readyState == READY_STATE_FINISHED) && (request.status == STATUS_OK))
+                    {
+                        let sRes = document.getElementById("sResId");
+                        let mRes = document.getElementById("mResId");
+                        let hRes = document.getElementById("hResId");
+                        let dRes = document.getElementById("dResId");
+                        sRes.innerHTML = "";
+                        mRes.innerHTML = "";
+                        dRes.innerHTML = "";
+                        hRes.innerHTML = "";
+                        AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
+                    }
+                };
+                request.send();
+            }
+
+            function UpdateData()
+            {             
+                let request = new XMLHttpRequest();
+                request.open("POST", "http://192.168.1.113/Update", true);
+                request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");
+                request.onreadystatechange = function()
+                {
+                    if ((request.readyState == READY_STATE_FINISHED) && (request.status == STATUS_OK))
+                    {
+                        let sRes = document.getElementById("sResId");
+                        let mRes = document.getElementById("mResId");
+                        let hRes = document.getElementById("hResId");
+                        let dRes = document.getElementById("dResId");
+                        AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
+                    }
+                };
+                request.send(UPDATE_CNT);
+            }
+
+            document.addEventListener("DOMContentLoaded", () => 
+            { 
+                GetData();
+                INTERVAL = setInterval(GetData, 60000);
+            });
+        </script>
+    </body>
+</html>
+

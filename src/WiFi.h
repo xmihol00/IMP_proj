@@ -22,6 +22,8 @@
 #include "esp_wifi.h"
 #include "esp_err.h"
 
+#define GPIO_LED_RED  2
+
 esp_err_t wifi_connect();
 
 esp_err_t wifi_disconnect();
