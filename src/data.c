@@ -111,7 +111,7 @@ static void average_last_hour()
 
 static void average_last_day()
 {
-    uint16_t pos = data.minutes_pos - HOURS_IN_DAY - 1 + HOURS;
+    uint16_t pos = data.hours_pos - HOURS_IN_DAY - 1 + HOURS;
 
     float collected = 0.0;
     uint8_t measurments = 0;

@@ -3,6 +3,9 @@
         <title>IMP projekt</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <style type="text/css">
+            body {
+                margin: 0px;
+            }
             .flex {
                 display: flex;
                 padding: 5px 10px;
@@ -12,10 +15,15 @@
             }
             .data {
                 height: 100%; 
-                width: 48%; 
-                margin-left: 1%;
+                width: 47%; 
+                margin-left: 2%;
                 margin-right: 1%; 
-                border: solid #aaa 1px; 
+                border: solid #aaa 1px;
+                position: relative;
+            }
+            .data:last-child {
+                margin-left: 1%;
+                margin-right: 2%;
             }
             .t-head {
                 position: fixed; 
@@ -95,12 +103,13 @@
     </head>
     <body>
         <div style="display: flex; justify-content: center;">
-            <div style="padding: 10px;">
-                <button id="2s" class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
-                <button id="1m" onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
+            <div style="padding: 15px 10px;">
+                <button id="2s" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
+                <button id="1m" class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
                 <button id="1h" onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
                 <button id="1d" onclick="UpdateDelay(this)">Aktualizovat každý den</button>
-                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem;">
+                <span>
+                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem; width: 48px;">
                     <option>01</option>
                     <option>02</option>
                     <option>03</option>
@@ -128,16 +137,17 @@
                     <option>70</option>
                     <option>80</option>
                     <option>90</option>
-                </select><select id="Sel1Id" style="margin-left: 48px;">
+                </select><select id="Sel1Id" style="margin-left: 48px; width: 89px;">
                     <option value="s">sekundy</option>
                     <option value="m">minuty</option>
                     <option value="h">hodiny</option>
                     <option value="d">dny</option>
                 </select><button id="my" onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 137px;">Vlastní prodleva aktualizace</button>
-                <button id="No" onclick="UpdateDelay(this)">Neaktualizovat</button>
+                <button id="no" onclick="UpdateDelay(this)">Neaktualizovat</button>
+                
             </div>
         </div>
-        <div id="topDivId" class="flex" style="height: 45%">
+        <div id="topDivId" style="height: 45%; display: flex;">
             <div class="data">
                 <div class="t-head">
                     <div class="flex p0">
@@ -165,7 +175,7 @@
                 <div id="mResId" class="t-body"></div>
             </div> 
         </div>
-        <div id="BotDivId" class="flex" style="height: 45%; margin-top: 15px;">
+        <div id="BotDivId" style="height: 45%; margin-top: 15px; display: flex;">
             <div class="data">
                 <div class="t-head">
                     <div class="flex p0">
@@ -255,12 +265,13 @@
                     buttons[i].classList.remove("btn-selected");
                 }
                 btn.classList.add("btn-selected");
+                console.log(btn);
 
                 if (btn.id == "2s")
                 {
                     UPDATE_CNT = 2;
                     clearInterval(INTERVAL);
-                    INTERVAL = setInterval(UpdateData, 2000);
+                    INTERVAL = setInterval(UpdateData, 1000);
                 }
                 else if (btn.id == "1m")
                 {
@@ -277,13 +288,41 @@
                     clearInterval(INTERVAL);
                     INTERVAL = setInterval(GetData, 86400000);
                 }
-                else if (btn.id == "No")
+                else if (btn.id == "no")
                 {
                     clearInterval(INTERVAL);
                 }
-                else if (btn.id == "My")
+                else if (btn.id == "my")
                 {
-
+                    let unit = document.getElementById("Sel1Id").value;
+                    let value = Number.parseInt(document.getElementById("Sel2Id").value);
+                    if (unit == "s")
+                    {
+                        clearInterval(INTERVAL);
+                        if (value < 60)
+                        {
+                            INTERVAL = setInterval(UpdateData, value * 1000);
+                        }
+                        else
+                        {
+                            INTERVAL = setInterval(GetData, value * 1000);
+                        }
+                    }
+                    else if (unit == "m")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 60000);
+                    }
+                    else if (unit == "h")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 3600000);
+                    }
+                    else if (unit == "d")
+                    {
+                        clearInterval(INTERVAL);
+                        INTERVAL = setInterval(GetData, value * 86400000);
+                    }
                 }
             }
 
@@ -330,22 +369,22 @@
                 BCKG = sRes.lastChild && sRes.lastChild.style.background == "";
                 for (let message of messages.s)
                 {
-                    sRes.appendChild(CreateMessageDiv(message, 's'));
+                    sRes.prepend(CreateMessageDiv(message, 's'));
                 }
                 BCKG = mRes.lastChild && mRes.lastChild.style.background == "";
                 for (let message of messages.m || [])
                 {
-                    mRes.appendChild(CreateMessageDiv(message, 'm'));
+                    mRes.prepend(CreateMessageDiv(message, 'm'));
                 }
                 BCKG = hRes.lastChild && hRes.lastChild.style.background == "";
                 for (let message of messages.h || [])
                 {
-                    hRes.appendChild(CreateMessageDiv(message, 'h'));
+                    hRes.prepend(CreateMessageDiv(message, 'h'));
                 }
                 BCKG = dRes.lastChild && dRes.lastChild.style.background == "";
                 for (let message of messages.d || [])
                 {
-                    dRes.appendChild(CreateMessageDiv(message, 'd'));
+                    dRes.prepend(CreateMessageDiv(message, 'd'));
                 }
             }
         
@@ -366,10 +405,6 @@
                         dRes.innerHTML = "";
                         hRes.innerHTML = "";
                         AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
-                        sRes.scrollTop = 999999999;
-                        mRes.scrollTop = 999999999;
-                        hRes.scrollTop = 999999999;
-                        dRes.scrollTop = 999999999;
                     }
                 }
                 request.send();
@@ -389,10 +424,6 @@
                         let hRes = document.getElementById("hResId");
                         let dRes = document.getElementById("dResId");
                         AppendMessages(JSON.parse(request.responseText), sRes, mRes, hRes, dRes);
-                        sRes.scrollTop = 999999999;
-                        mRes.scrollTop = 999999999;
-                        hRes.scrollTop = 999999999;
-                        dRes.scrollTop = 999999999;
                     }
                 }
                 request.send(UPDATE_CNT);
@@ -401,7 +432,7 @@
             document.addEventListener("DOMContentLoaded", () => 
             { 
                 GetData();
-                INTERVAL = setInterval(UpdateData, 2000);
+                INTERVAL = setInterval(GetData, 60000);
             });
         </script>
     </body>

@@ -146,17 +146,24 @@ static void parse_input()
 		{
 			skip_buffer_spaces();
 
-			parsed = atoi(&recieve_buffer[recieve_buffer_pos]);
-			if (parsed < 0)
+			if (recieve_buffer[recieve_buffer_pos] == '0' && isspace(recieve_buffer[recieve_buffer_pos]))
 			{
-				unrecognized = 2;
+				unrecognized = set_log_interval(0, 0);
 			}
 			else
 			{
-				skip_buffer_characters();
-				skip_buffer_spaces();
+				parsed = atoi(&recieve_buffer[recieve_buffer_pos]);
+				if (parsed < 0)
+				{
+					unrecognized = 2;
+				}
+				else
+				{
+					skip_buffer_characters();
+					skip_buffer_spaces();
 
-				unrecognized = set_log_interval((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+					unrecognized = set_log_interval((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+				}
 			}
 		}
 		else
@@ -171,7 +178,23 @@ static void parse_input()
 		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "elp", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
 		{
 			skip_buffer_spaces();
-			uart_print_string("Here will be help message...\r\n");
+			uart_print_string("+----------------------------------------------------------------------------+\r\n");
+			uart_print_string("|                                 HELP MESSAGE                               |\r\n");
+			uart_print_string("+----------------------------------------------------------------------------+\r\n");
+			uart_print_string("| Meaning of used notation:                                                  |\r\n");
+			uart_print_string("| - NL New line character (Enter key)                                        |\r\n");
+			uart_print_string("| - WS* Zero or more white space characters appart from <NL>.                |\r\n");
+			uart_print_string("| - WS+ One or more white space characters appart from <NL>.                 |\r\n");
+			uart_print_string("| Command line interface:                                                    |\r\n");
+			uart_print_string("| - <WS*><h|help><WS*><NL> Prints this help message.                         |\r\n");
+			uart_print_string("| - <WS*><s|status><WS*><NL> Prints the current status of the device.        |\r\n");
+			uart_print_string("| - <WS*><l|log><WS+><1-N><WS+><s|m|h|d><WS*><NL>                            |\r\n");
+			uart_print_string("|     Logs measured temperature each N seconds, minutes, hours or days.      |\r\n");
+			uart_print_string("| - <WS*><l|log><WS+><0><WS*><NL> Stops temperature logging.                 |\r\n");
+			uart_print_string("| - <WS*><p|print><WS+><1-N><WS+><s|m|h|d><WS*><NL>                          |\r\n");
+			uart_print_string("|     Prints measured temperature of last N seconds, minutes, hours or days. |\r\n");
+			uart_print_string("| - <WS*><t|tiime><WS+><sync><WS*><NL> Synchronizes the device time.         |\r\n");
+			uart_print_string("+----------------------------------------------------------------------------+\r\n");
 		}
 		else
 		{
@@ -208,7 +231,7 @@ static void parse_input()
 
 	if (unrecognized)
 	{
-		sprintf(recieve_buffer, "Command was not recognized.\r\n");
+		sprintf(recieve_buffer, "Command was not recognized.\r\nType 'h' or 'help' on a single line to view the help message.\r\n");
 		uart_write_bytes(ACTIVE_UART, recieve_buffer, strlen(recieve_buffer));
 	}	
 
