@@ -73,8 +73,7 @@ static void wifi_start()
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
     esp_netif_inherent_config_t esp_netif_config = ESP_NETIF_INHERENT_DEFAULT_WIFI_STA();
-    // Prefix the interface description with the module TAG
-    // Warning: the interface desc is used in tests to capture actual connection details (IP, gw, mask)
+    
     asprintf(&desc, "%s: %s", TAG, esp_netif_config.if_desc);
     esp_netif_config.if_desc = desc;
     esp_netif_config.route_prio = 128;

@@ -7,8 +7,6 @@
 #include "HTTP.h"
 #include "file.h"
 
-const char *TAG = "lol";
-
 void app_main(void)
 {
     esp_log_level_set("*", ESP_LOG_ERROR); 

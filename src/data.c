@@ -41,7 +41,7 @@ void store_measurment(float temperature)
         {
             average_last_hour();
 
-            if (!(data.seconds[data.seconds_pos].time % SEC_IN_DAY))
+            if (!((data.seconds[data.seconds_pos].time + SEC_IN_HOUR) % SEC_IN_DAY))
             {
                 average_last_day();
             }
@@ -67,12 +67,12 @@ static void average_last_minute()
     uint8_t measurments = 0;
     for (uint8_t i = 0; i < SEC_IN_MIN; i++)
     {
+        pos++;
         if (data.seconds[pos % SECONDS].time != 0)
         {
             collected += data.seconds[pos % SECONDS].temperature;
             measurments++;
         }
-        pos++;
     }
 
     data.minutes[data.minutes_pos].temperature = collected / measurments;
@@ -86,7 +86,7 @@ static void average_last_minute()
 
 static void average_last_hour()
 {
-    uint16_t pos = data.minutes_pos - MINS_IN_HOUR - 1 + MINUTES;
+    uint16_t pos = data.minutes_pos - MINS_IN_HOUR + MINUTES;
 
     float collected = 0.0;
     uint8_t measurments = 0;
@@ -111,7 +111,7 @@ static void average_last_hour()
 
 static void average_last_day()
 {
-    uint16_t pos = data.hours_pos - HOURS_IN_DAY - 1 + HOURS;
+    uint16_t pos = data.hours_pos - HOURS_IN_DAY + HOURS;
 
     float collected = 0.0;
     uint8_t measurments = 0;

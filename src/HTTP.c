@@ -153,7 +153,7 @@ static esp_err_t update_n(httpd_req_t *req)
                 if (!(data->seconds[modul].time % SEC_IN_HOUR))
                 {
                     hour = true;
-                    if (!(data->seconds[modul].time % SEC_IN_DAY))
+                    if (!((data->seconds[modul].time + SEC_IN_HOUR) % SEC_IN_DAY))
                     {
                         day = true;
                     }

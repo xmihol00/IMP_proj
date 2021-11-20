@@ -94,7 +94,7 @@
             }
             select {
                 height: 35px;
-                padding: 0px 5px;
+                padding: 0px 10px;
                 font-size: 14px;
                 font-weight: 600;
                 cursor: pointer;
@@ -107,14 +107,14 @@
     </head>
     <body>
         <div style="display: flex; justify-content: center; flex-direction: row; flex-wrap: wrap; padding-top: 15px;">
-            <div style="padding: 0px 0px 15px 3px;">
+            <div style="padding: 0px 3px 15px 0px;">
                 <button id="1s" onclick="UpdateDelay(this)">Aktualizovat průběžně</button>
                 <button id="1m" class="btn-selected" onclick="UpdateDelay(this)">Aktualizovat každou minutu</button>
                 <button id="1h" onclick="UpdateDelay(this)">Aktualizovat každou hodinu</button>
                 <button id="1d" onclick="UpdateDelay(this)">Aktualizovat každý den</button>
             </div>
             <div style="padding: 0px 0px 15px 3px;;">
-                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem; width: 48px;">
+                <select id="Sel2Id" style="border-top-left-radius: 0.25rem; border-bottom-left-radius: 0.25rem; width: 60px;">
                     <option>01</option>
                     <option>02</option>
                     <option>03</option>
@@ -142,12 +142,12 @@
                     <option>70</option>
                     <option>80</option>
                     <option>90</option>
-                </select><select id="Sel1Id" style="margin-left: 48px; width: 89px;">
+                </select><select id="Sel1Id" style="margin-left: 60px; width: 100px;">
                     <option value="s">sekundy</option>
                     <option value="m">minuty</option>
                     <option value="h">hodiny</option>
                     <option value="d">dny</option>
-                </select><button id="my" onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 137px;">Vlastní prodleva aktualizace</button>
+                </select><button id="my" onclick="UpdateDelay(this)" style="border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: 160px;">Vlastní prodleva aktualizace</button>
                 <button id="no" onclick="UpdateDelay(this)">Neaktualizovat</button>                
             </div>
         </div>
@@ -274,21 +274,25 @@
                 {
                     UPDATE_CNT = 1;
                     clearInterval(INTERVAL);
+                    GetData();
                     INTERVAL = setInterval(UpdateData, 1000);
                 }
                 else if (btn.id == "1m")
                 {
                     clearInterval(INTERVAL);
+                    GetData();
                     INTERVAL = setInterval(GetData, 60000);
                 }
                 else if (btn.id == "1h")
                 {
                     clearInterval(INTERVAL);
+                    GetData();
                     INTERVAL = setInterval(GetData, 3600000);
                 }
                 else if (btn.id == "1d")
                 {
                     clearInterval(INTERVAL);
+                    GetData();
                     INTERVAL = setInterval(GetData, 86400000);
                 }
                 else if (btn.id == "no")
@@ -302,6 +306,7 @@
                     if (unit == "s")
                     {
                         clearInterval(INTERVAL);
+                        GetData();
                         if (value < 60)
                         {
                             UPDATE_CNT = value;
@@ -315,16 +320,19 @@
                     else if (unit == "m")
                     {
                         clearInterval(INTERVAL);
+                        GetData();
                         INTERVAL = setInterval(GetData, value * 60000);
                     }
                     else if (unit == "h")
                     {
                         clearInterval(INTERVAL);
+                        GetData();
                         INTERVAL = setInterval(GetData, value * 3600000);
                     }
                     else if (unit == "d")
                     {
                         clearInterval(INTERVAL);
+                        GetData();
                         INTERVAL = setInterval(GetData, value * 86400000);
                     }
                 }
