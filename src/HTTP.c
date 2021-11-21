@@ -10,7 +10,7 @@ static esp_err_t main_page(httpd_req_t *req)
 static esp_err_t all_data(httpd_req_t *req)
 {
     collected_data_t *data = get_data();
-    uint16_t data_pos = data->seconds_pos + 1;
+    uint16_t data_pos = data->seconds_pos;
     uint16_t modul = 0;
     
     uint32_t json_pos = 6;
@@ -39,7 +39,7 @@ static esp_err_t all_data(httpd_req_t *req)
     strcpy(&json[json_pos], "\"m\":[ ");
     json_pos += 6;
 
-    data_pos = data->minutes_pos + 1;
+    data_pos = data->minutes_pos;
     i = 0;
     while(i++ < MINUTES)
     {
@@ -58,7 +58,7 @@ static esp_err_t all_data(httpd_req_t *req)
     strcpy(&json[json_pos], "\"h\":[ ");
     json_pos += 6;
 
-    data_pos = data->hours_pos + 1;
+    data_pos = data->hours_pos;
     i = 0;
     while(i++ < HOURS)
     {
@@ -77,7 +77,7 @@ static esp_err_t all_data(httpd_req_t *req)
     strcpy(&json[json_pos], "\"d\":[ ");
     json_pos += 6;
 
-    data_pos = data->days_pos + 1;
+    data_pos = data->days_pos;
     i = 0;
     while(i++ < DAYS)
     {
