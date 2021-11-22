@@ -23,6 +23,14 @@
 #include "esp_err.h"
 
 #define GPIO_LED_RED  2
+#define CREDENTIAL_SIZE 128
+
+typedef struct 
+{
+    char username[CREDENTIAL_SIZE];
+    char password[CREDENTIAL_SIZE];
+} credentials_t;
+
 
 esp_err_t wifi_connect();
 

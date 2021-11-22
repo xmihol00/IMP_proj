@@ -38,3 +38,16 @@ main_page_t get_main_page()
 {
     return main_page;
 }
+
+void save_credentials(char *username, char *password)
+{
+    FILE *file = fopen("/spiffs/index.html", "w");
+    if (file == NULL)
+    {
+        return;
+    }
+    fwrite(username, 1, 64, file);
+    fwrite(password, 1, 64, file);
+    
+    fclose(file);
+}

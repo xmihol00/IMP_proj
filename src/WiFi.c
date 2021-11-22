@@ -14,6 +14,8 @@ xSemaphoreHandle s_semph_get_ip_addrs;
 esp_netif_t *s_example_esp_netif = NULL;
 esp_ip4_addr_t s_ip_addr;
 
+credentials_t credentials;
+
 esp_err_t wifi_connect()
 {
     if (s_semph_get_ip_addrs != NULL) 

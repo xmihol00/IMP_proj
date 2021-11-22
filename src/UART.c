@@ -6,6 +6,9 @@ static intr_handle_t handle_console;
 static uint8_t recieve_buffer_pos = UINT8_MAX;
 char recieve_buffer[BUFFER_SIZE];
 char send_buffer[BUFFER_SIZE];
+static uint8_t wifi_status = NO_WIFI;
+
+extern credentials_t credentials;
 
 static void parse_input();
 static void skip_buffer_spaces();
@@ -23,7 +26,22 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
     while(rx_fifo_len--)
     {
         recieve_buffer[++recieve_buffer_pos] = UART0.fifo.rw_byte;
-        uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
+		if (wifi_status == WIFI_PASSWORD)
+		{
+			if (recieve_buffer[recieve_buffer_pos] == '\r')
+			{
+				recieve_buffer[recieve_buffer_pos] = '\0';
+			}
+			else
+			{
+				uart_write_bytes(ACTIVE_UART, "*", 1);
+			}
+		}
+		else
+		{
+        	uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
+		}
+
 		if (recieve_buffer[recieve_buffer_pos] == '\r')
 		{
 			recieve_buffer[recieve_buffer_pos] = '\n';
@@ -99,7 +117,17 @@ static void parse_input()
 	recieve_buffer_pos = 0;
 	skip_buffer_spaces();
 
-	if (recieve_buffer[recieve_buffer_pos] == 's')
+	if (wifi_status == WIFI_UNAME)
+	{
+		strcpy(credentials.username, recieve_buffer);
+		wifi_status = WIFI_PASSWORD;
+	}
+	else if (wifi_status == WIFI_PASSWORD)
+	{
+		strcpy(credentials.password, recieve_buffer);
+		wifi_status = NO_WIFI;
+	}
+	else if (recieve_buffer[recieve_buffer_pos] == 's')
 	{
 		recieve_buffer_pos++;
 		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
@@ -131,6 +159,33 @@ static void parse_input()
 				skip_buffer_spaces();
 
 				unrecognized = print_samples((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+			}
+		}
+		else
+		{
+			unrecognized = 3;
+		}
+	}
+	else if (recieve_buffer[recieve_buffer_pos] == 'w')
+	{
+		recieve_buffer_pos++;
+		if (isspace(recieve_buffer[recieve_buffer_pos]) || 
+		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "ifi", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
+		{
+			skip_buffer_spaces();
+
+			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "connect", 7) && isspace(recieve_buffer[recieve_buffer_pos += 7]))
+			{
+
+			}
+			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "disconnect", 10) && isspace(recieve_buffer[recieve_buffer_pos += 10]))
+			{
+
+			}
+			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "auth", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
+			{
+				wifi_status = WIFI_UNAME;
+				memset(credentials, 0, CREDENTIAL_SIZE << 1);
 			}
 		}
 		else
