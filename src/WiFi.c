@@ -8,6 +8,7 @@ static bool is_our_netif(const char *prefix, esp_netif_t *netif);
 static void on_got_ip(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
+static bool connected = false;
 static char *TAG = "WiFi";
 int s_active_interfaces = 0;
 xSemaphoreHandle s_semph_get_ip_addrs;
@@ -97,7 +98,11 @@ static void wifi_start()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-    esp_wifi_connect();
+    if (esp_wifi_connect() == ESP_OK)
+    {
+        connected = true;
+    }
+    
     s_example_esp_netif = netif;
     s_active_interfaces++;
     s_semph_get_ip_addrs = xSemaphoreCreateCounting(s_active_interfaces, 0);
@@ -113,6 +118,10 @@ static void wifi_stop()
     if (err == ESP_ERR_WIFI_NOT_INIT) 
     {
         return;
+    }
+    else if (err == ESP_OK)
+    {
+        connected = false;
     }
 
     ESP_ERROR_CHECK(err);
@@ -158,3 +167,7 @@ static void on_got_ip(void *arg, esp_event_base_t event_base, int32_t event_id, 
     xSemaphoreGive(s_semph_get_ip_addrs);
 }
 
+bool wifi_is_connected()
+{
+    return connected;
+}

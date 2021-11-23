@@ -36,4 +36,6 @@ esp_err_t wifi_connect();
 
 esp_err_t wifi_disconnect();
 
+bool wifi_is_connected();
+
 #endif

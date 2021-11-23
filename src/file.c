@@ -1,5 +1,6 @@
 #include "file.h"
 
+extern credentials_t credentials;
 
 static main_page_t main_page =
 {
@@ -32,6 +33,16 @@ void init_file_system()
     }
 
     main_page.size = fread(main_page.data, 1, INDEX_FILE_SIZE, file);
+    fclose(file);
+
+    file = fopen("/spiffs/credentials", "r");
+    if (file == NULL)
+    {
+        return;
+    }
+
+    fread(&credentials, 1, CREDENTIAL_SIZE << 1, file);
+    fclose(file);
 }
 
 main_page_t get_main_page()
@@ -39,15 +50,14 @@ main_page_t get_main_page()
     return main_page;
 }
 
-void save_credentials(char *username, char *password)
+void save_credentials()
 {
-    FILE *file = fopen("/spiffs/index.html", "w");
+    FILE *file = fopen("/spiffs/credentials", "w");
     if (file == NULL)
     {
         return;
     }
-    fwrite(username, 1, 64, file);
-    fwrite(password, 1, 64, file);
+    fwrite(&credentials, 1, CREDENTIAL_SIZE << 1, file);
     
     fclose(file);
 }

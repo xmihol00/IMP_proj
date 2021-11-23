@@ -8,6 +8,8 @@
 #include "esp_err.h"
 #include "esp_spiffs.h"
 
+#include "WiFi.h"
+
 #define INDEX_FILE_SIZE 10500
 
 typedef struct 

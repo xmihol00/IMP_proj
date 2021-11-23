@@ -176,16 +176,26 @@ static void parse_input()
 
 			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "connect", 7) && isspace(recieve_buffer[recieve_buffer_pos += 7]))
 			{
-
+				if (!wifi_is_connected())
+				{
+					wifi_connect();
+				}
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "disconnect", 10) && isspace(recieve_buffer[recieve_buffer_pos += 10]))
 			{
-
+				if (!wifi_is_connected())
+				{
+					wifi_disconnect();
+				}
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "auth", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
 			{
 				wifi_status = WIFI_UNAME;
-				memset(credentials, 0, CREDENTIAL_SIZE << 1);
+				memset(&credentials, 0, CREDENTIAL_SIZE << 1);
+			}
+			else
+			{
+				unrecognized = 2;
 			}
 		}
 		else
