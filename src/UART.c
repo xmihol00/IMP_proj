@@ -119,13 +119,15 @@ static void parse_input()
 
 	if (wifi_status == WIFI_UNAME)
 	{
-		strcpy(credentials.username, recieve_buffer);
+		strncpy(credentials.username, recieve_buffer, strlen(recieve_buffer));
 		wifi_status = WIFI_PASSWORD;
 	}
 	else if (wifi_status == WIFI_PASSWORD)
 	{
-		strcpy(credentials.password, recieve_buffer);
+		strncpy(credentials.password, recieve_buffer, strlen(recieve_buffer));
 		wifi_status = NO_WIFI;
+		wifi_connect();
+		print_status();
 	}
 	else if (recieve_buffer[recieve_buffer_pos] == 's')
 	{
@@ -179,6 +181,7 @@ static void parse_input()
 				if (!wifi_is_connected())
 				{
 					wifi_connect();
+					print_status();
 				}
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "disconnect", 10) && isspace(recieve_buffer[recieve_buffer_pos += 10]))
@@ -186,6 +189,7 @@ static void parse_input()
 				if (!wifi_is_connected())
 				{
 					wifi_disconnect();
+					print_status();
 				}
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "auth", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
@@ -355,5 +359,14 @@ void print_status()
 	uart_print_string(send_buffer);
 
 	print_log_interval(send_buffer);
+	if (wifi_is_connected())
+	{
+		fprintf(send_buffer, "WiFi is connected to '%s', device IP address is: %d.%d.%d.%d", credentials.username, )
+		uart_print_string("| - WiFi is connected to ...., device IP address: \t\t\t\t|\r\n");	
+	}
+	else
+	{
+		uart_print_string("| - WiFi is not connected.\t\t\t\t|\r\n");	
+	}
 	uart_print_string("+-------------------------------------------------------------------------------+\r\n");
 }

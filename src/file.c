@@ -50,7 +50,7 @@ main_page_t get_main_page()
     return main_page;
 }
 
-void save_credentials()
+void store_credentials()
 {
     FILE *file = fopen("/spiffs/credentials", "w");
     if (file == NULL)

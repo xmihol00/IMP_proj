@@ -23,4 +23,6 @@ void init_file_system();
 
 main_page_t get_main_page();
 
+void store_credentials();
+
 #endif

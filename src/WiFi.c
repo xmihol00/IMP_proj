@@ -17,6 +17,19 @@ esp_ip4_addr_t s_ip_addr;
 
 credentials_t credentials;
 
+static void signalize_wifi_disconnected()
+{
+    gpio_pad_select_gpio(GPIO_LED_RED);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_LED_RED, 1);
+}
+
+static void signalize_wifi_connected()
+{
+    gpio_set_level(GPIO_LED_RED, 0);
+    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_DISABLE);
+}
+
 esp_err_t wifi_connect()
 {
     if (s_semph_get_ip_addrs != NULL) 
@@ -90,8 +103,8 @@ static void wifi_start()
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = "panter",
-            .password = "maxipesfik"
+            .ssid = credentials.username,
+            .password = credentials.password,
         },
     };
 
