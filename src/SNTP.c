@@ -13,20 +13,23 @@ void initialize_sntp()
 
 void set_current_time()
 {
-    sntp_servermode_dhcp(1);
-
-    int retry = 0;
-    while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 15) 
+    if (wifi_is_connected())
     {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+        sntp_servermode_dhcp(1);
 
-    setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1);
-    tzset();
-    time(&last_sync);
-    if (start_time == 0)
-    {
-        start_time = last_sync;
+        int retry = 0;
+        while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 15) 
+        {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+
+        setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1);
+        tzset();
+        time(&last_sync);
+        if (start_time == 0)
+        {
+            start_time = last_sync;
+        }
     }
 }
 

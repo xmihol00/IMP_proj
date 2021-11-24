@@ -23,12 +23,14 @@
 #include "esp_err.h"
 
 #define GPIO_LED_RED  2
-#define CREDENTIAL_SIZE 128
+#define CREDENTIAL_SIZE 96
+#define CREDENTIAL_PASS 64
+#define CREDENTIAL_NAME 32
 
 typedef struct 
 {
-    char username[CREDENTIAL_SIZE];
-    char password[CREDENTIAL_SIZE];
+    char name[CREDENTIAL_NAME];
+    char password[CREDENTIAL_PASS];
 } credentials_t;
 
 

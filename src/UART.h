@@ -15,6 +15,7 @@
 #include "data.h"
 #include "SNTP.h"
 #include "WiFi.h"
+#include "file.h"
 
 #define ACTIVE_UART UART_NUM_0
 #define UART_BAUD_RATE 115200

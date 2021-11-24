@@ -10,9 +10,9 @@ static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t e
 
 static bool connected = false;
 static char *TAG = "WiFi";
-int s_active_interfaces = 0;
-xSemaphoreHandle s_semph_get_ip_addrs;
-esp_netif_t *s_example_esp_netif = NULL;
+static int s_active_interfaces = 0;
+static xSemaphoreHandle s_semph_get_ip_addrs;
+static esp_netif_t *s_example_esp_netif = NULL;
 esp_ip4_addr_t s_ip_addr;
 
 credentials_t credentials;
@@ -32,13 +32,17 @@ static void signalize_wifi_connected()
 
 esp_err_t wifi_connect()
 {
+    signalize_wifi_disconnected();
+    s_ip_addr.addr = 0;
+    connected = false;
+
     if (s_semph_get_ip_addrs != NULL) 
     {
         return ESP_ERR_INVALID_STATE;
     }
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_event_loop_create_default();
 
     wifi_start();
     ESP_ERROR_CHECK(esp_register_shutdown_handler(&wifi_stop));
@@ -46,6 +50,11 @@ esp_err_t wifi_connect()
     for (int i = 0; i < s_active_interfaces; i++) 
     {
         xSemaphoreTake(s_semph_get_ip_addrs, portMAX_DELAY);
+    }
+
+    if (s_ip_addr.addr == 0)
+    {
+        wifi_disconnect();
     }
     
     return ESP_OK;
@@ -61,25 +70,23 @@ esp_err_t wifi_disconnect()
     s_semph_get_ip_addrs = NULL;
     wifi_stop();
     ESP_ERROR_CHECK(esp_unregister_shutdown_handler(&wifi_stop));
+
+    signalize_wifi_disconnected();
     return ESP_OK;
 }
 
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    gpio_pad_select_gpio(GPIO_LED_RED);
-    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_LED_RED, 1);
-    
-    esp_err_t err;
-    do
+    if (s_ip_addr.addr == 0)
     {
-        err = esp_wifi_connect();
-        vTaskDelay(1000 / portTICK_RATE_MS);
-    } 
-    while (err != ESP_OK);
-
-    gpio_set_level(GPIO_LED_RED, 0);
-    gpio_set_direction(GPIO_LED_RED, GPIO_MODE_DISABLE);
+        xSemaphoreGive(s_semph_get_ip_addrs);
+    }
+    else
+    {
+        signalize_wifi_disconnected();
+        connected = false;
+        esp_wifi_connect();
+    }    
 }
 
 static void wifi_start()
@@ -103,18 +110,17 @@ static void wifi_start()
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = credentials.username,
-            .password = credentials.password,
+            .ssid = "",
+            .password = "",
         },
     };
+    memcpy(wifi_config.sta.ssid, credentials.name, CREDENTIAL_NAME);
+    memcpy(wifi_config.sta.password, credentials.password, CREDENTIAL_PASS);
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
-    if (esp_wifi_connect() == ESP_OK)
-    {
-        connected = true;
-    }
+    ESP_ERROR_CHECK(esp_wifi_connect());
     
     s_example_esp_netif = netif;
     s_active_interfaces++;
@@ -177,6 +183,10 @@ static void on_got_ip(void *arg, esp_event_base_t event_base, int32_t event_id, 
     }
 
     memcpy(&s_ip_addr, &event->ip_info.ip, sizeof(s_ip_addr));
+
+    connected = true;
+    signalize_wifi_connected();
+
     xSemaphoreGive(s_semph_get_ip_addrs);
 }
 

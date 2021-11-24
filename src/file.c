@@ -41,7 +41,7 @@ void init_file_system()
         return;
     }
 
-    fread(&credentials, 1, CREDENTIAL_SIZE << 1, file);
+    fread(&credentials, 1, CREDENTIAL_SIZE, file);
     fclose(file);
 }
 
@@ -57,7 +57,7 @@ void store_credentials()
     {
         return;
     }
-    fwrite(&credentials, 1, CREDENTIAL_SIZE << 1, file);
+    fwrite(&credentials, 1, CREDENTIAL_SIZE, file);
     
     fclose(file);
 }

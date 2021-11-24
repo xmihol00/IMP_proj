@@ -9,6 +9,7 @@ char send_buffer[BUFFER_SIZE];
 static uint8_t wifi_status = NO_WIFI;
 
 extern credentials_t credentials;
+extern esp_ip4_addr_t s_ip_addr;
 
 static void parse_input();
 static void skip_buffer_spaces();
@@ -19,7 +20,6 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
 {
     uint16_t rx_fifo_len;
 
-    // TODO UART0.int_st.val
 	UART0.status.ctsn;
     rx_fifo_len = UART0.status.rxfifo_cnt; // read number of bytes in UART buffer
     
@@ -28,9 +28,11 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
         recieve_buffer[++recieve_buffer_pos] = UART0.fifo.rw_byte;
 		if (wifi_status == WIFI_PASSWORD)
 		{
-			if (recieve_buffer[recieve_buffer_pos] == '\r')
+			if (recieve_buffer[recieve_buffer_pos] == '\r' || recieve_buffer[recieve_buffer_pos] == '\n')
 			{
 				recieve_buffer[recieve_buffer_pos] = '\0';
+				recieve_buffer[++recieve_buffer_pos] = '\n';
+				uart_write_bytes(ACTIVE_UART, "\r\n", 2);
 			}
 			else
 			{
@@ -51,7 +53,7 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
 	
 	if (recieve_buffer[recieve_buffer_pos] == '\n')
 	{
-		xTaskCreate(&parse_input, "parse_input", 2048, NULL, 5, &parse_handle);
+		xTaskCreate(&parse_input, "parse_input", 4096, NULL, 5, &parse_handle);
 	}
 
     uart_clear_intr_status(ACTIVE_UART, UART_RXFIFO_FULL_INT_CLR|UART_RXFIFO_TOUT_INT_CLR);
@@ -84,8 +86,6 @@ void init_uart()
 
 	// enable RX interrupt
 	ESP_ERROR_CHECK(uart_enable_rx_intr(ACTIVE_UART));
-
-	uart_print_string("\r\n*IInitilizing...\r\n");
 }
 
 void uart_print_measurment(measurment_t *measurment)
@@ -119,14 +119,21 @@ static void parse_input()
 
 	if (wifi_status == WIFI_UNAME)
 	{
-		strncpy(credentials.username, recieve_buffer, strlen(recieve_buffer));
+		strncpy(credentials.name, recieve_buffer, strlen(recieve_buffer) - 2);
 		wifi_status = WIFI_PASSWORD;
+		uart_print_string("password: ");
 	}
 	else if (wifi_status == WIFI_PASSWORD)
 	{
 		strncpy(credentials.password, recieve_buffer, strlen(recieve_buffer));
 		wifi_status = NO_WIFI;
+		store_credentials();
+
+		uart_print_string("Changing credentials ...\r\n");
+		wifi_disconnect();
 		wifi_connect();
+		
+		vTaskDelay(50 / portTICK_RATE_MS);
 		print_status();
 	}
 	else if (recieve_buffer[recieve_buffer_pos] == 's')
@@ -178,24 +185,28 @@ static void parse_input()
 
 			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "connect", 7) && isspace(recieve_buffer[recieve_buffer_pos += 7]))
 			{
+				uart_print_string("Connecting ...\r\n");
 				if (!wifi_is_connected())
 				{
 					wifi_connect();
-					print_status();
 				}
+				vTaskDelay(50 / portTICK_RATE_MS);
+				print_status();
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "disconnect", 10) && isspace(recieve_buffer[recieve_buffer_pos += 10]))
 			{
-				if (!wifi_is_connected())
+				uart_print_string("Disconnecting ...\r\n");
+				if (wifi_is_connected())
 				{
 					wifi_disconnect();
-					print_status();
 				}
+				print_status();
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "auth", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
 			{
 				wifi_status = WIFI_UNAME;
-				memset(&credentials, 0, CREDENTIAL_SIZE << 1);
+				memset(&credentials, 0, CREDENTIAL_SIZE);
+				uart_print_string("name: ");
 			}
 			else
 			{
@@ -215,7 +226,7 @@ static void parse_input()
 		{
 			skip_buffer_spaces();
 
-			if (recieve_buffer[recieve_buffer_pos] == '0' && isspace(recieve_buffer[recieve_buffer_pos]))
+			if (recieve_buffer[recieve_buffer_pos] == '0' && isspace(recieve_buffer[recieve_buffer_pos + 1]))
 			{
 				unrecognized = set_log_interval(0, 0);
 			}
@@ -262,7 +273,11 @@ static void parse_input()
 			uart_print_string("| - <WS*><l|log><WS+><0><WS*><NL> Stops temperature logging.                 |\r\n");
 			uart_print_string("| - <WS*><p|print><WS+><1-N><WS+><s|m|h|d><WS*><NL>                          |\r\n");
 			uart_print_string("|     Prints measured temperature of last N seconds, minutes, hours or days. |\r\n");
-			uart_print_string("| - <WS*><t|tiime><WS+><sync><WS*><NL> Synchronizes the device time.         |\r\n");
+			uart_print_string("| - <WS*><t|time><WS+><sync><WS*><NL> Synchronizes the device time.          |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><connect><WS*><NL> Tries to connect to WiFi.           |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><disconnect><WS*><NL> Disconnects from WiFi.    	    |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><auth><WS*><NL>                                	    |\r\n");
+			uart_print_string("|     Asks the user for new WiFi credentials and tries to connect with them. |\r\n");
 			uart_print_string("+----------------------------------------------------------------------------+\r\n");
 		}
 		else
@@ -277,7 +292,7 @@ static void parse_input()
 		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "ime", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
 		{
 			skip_buffer_spaces();
-			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "sync", 4) && isspace(recieve_buffer[recieve_buffer_pos += 3]))
+			if (!strncmp(&recieve_buffer[recieve_buffer_pos], "sync", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
 			{
 				uart_print_string("Synchronizing...\r\n");
 				set_current_time();
@@ -361,12 +376,16 @@ void print_status()
 	print_log_interval(send_buffer);
 	if (wifi_is_connected())
 	{
-		fprintf(send_buffer, "WiFi is connected to '%s', device IP address is: %d.%d.%d.%d", credentials.username, )
-		uart_print_string("| - WiFi is connected to ...., device IP address: \t\t\t\t|\r\n");	
+		sprintf(send_buffer, "| - WiFi is connected, device IP address is: %d.%d.%d.%d\t\t\t|\r\n", 
+																							 s_ip_addr.addr & 0xFF,
+																							 (s_ip_addr.addr >> 8) & 0xFF, 
+																							 (s_ip_addr.addr >> 16) & 0xFF,
+																							 s_ip_addr.addr >> 24);
+		uart_print_string(send_buffer);	
 	}
 	else
 	{
-		uart_print_string("| - WiFi is not connected.\t\t\t\t|\r\n");	
+		uart_print_string("| - WiFi is not connected.\t\t\t\t\t\t\t|\r\n");	
 	}
 	uart_print_string("+-------------------------------------------------------------------------------+\r\n");
 }
