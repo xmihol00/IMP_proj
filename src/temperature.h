@@ -10,7 +10,7 @@
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
 
-#define DEFAULT_VREF        1150        
+#define DEFAULT_VREF        1100        
 #define SAMPLE_SHIFT        6
 #define NUMBER_OF_SAMPLES   1 << SAMPLE_SHIFT
 

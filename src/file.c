@@ -42,6 +42,15 @@ void init_file_system()
     }
 
     fread(&credentials, 1, CREDENTIAL_SIZE, file);
+    if (credentials.name[0] == 0)
+    {
+         credentials.name[0] = '0';
+    }
+    if (credentials.password[0] == 0)
+    {
+         credentials.password[0] = '0';
+    }
+
     fclose(file);
 }
 
@@ -57,6 +66,16 @@ void store_credentials()
     {
         return;
     }
+
+    if (credentials.name[0] == 0)
+    {
+         credentials.name[0] = '0';
+    }
+    if (credentials.password[0] == 0)
+    {
+         credentials.password[0] = '0';
+    }
+
     fwrite(&credentials, 1, CREDENTIAL_SIZE, file);
     
     fclose(file);

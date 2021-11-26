@@ -28,15 +28,28 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
         recieve_buffer[++recieve_buffer_pos] = UART0.fifo.rw_byte;
 		if (wifi_status == WIFI_PASSWORD)
 		{
-			if (recieve_buffer[recieve_buffer_pos] == '\r' || recieve_buffer[recieve_buffer_pos] == '\n')
+			if (recieve_buffer[recieve_buffer_pos] == '\r')
 			{
 				recieve_buffer[recieve_buffer_pos] = '\0';
-				recieve_buffer[++recieve_buffer_pos] = '\n';
+				recieve_buffer[++recieve_buffer_pos] = '\r';
 				uart_write_bytes(ACTIVE_UART, "\r\n", 2);
 			}
-			else
+			else if (recieve_buffer[recieve_buffer_pos] != '\n')
 			{
 				uart_write_bytes(ACTIVE_UART, "*", 1);
+			}
+		}
+		else if (wifi_status == WIFI_UNAME)
+		{
+			if (recieve_buffer[recieve_buffer_pos] == '\r')
+			{
+				recieve_buffer[recieve_buffer_pos] = '\0';
+				recieve_buffer[++recieve_buffer_pos] = '\r';
+				uart_write_bytes(ACTIVE_UART, "\r\n", 2);
+			}
+			else if (recieve_buffer[recieve_buffer_pos] != '\n')
+			{
+				uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
 			}
 		}
 		else
@@ -44,18 +57,21 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
         	uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
 		}
 
+		if (recieve_buffer[recieve_buffer_pos] == 0x08 || recieve_buffer[recieve_buffer_pos] == 0x7f) // backspace
+		{
+			recieve_buffer_pos = recieve_buffer_pos < 2 ?  UINT8_MAX : recieve_buffer_pos - 2;
+		}
+
 		if (recieve_buffer[recieve_buffer_pos] == '\r')
 		{
+			uart_clear_intr_status(ACTIVE_UART, UART_RXFIFO_FULL_INT_CLR|UART_RXFIFO_TOUT_INT_CLR);
 			recieve_buffer[recieve_buffer_pos] = '\n';
 			uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
+			xTaskCreate(&parse_input, "parse_input", 4096, NULL, 5, &parse_handle);
+			return;
 		}
     }
 	
-	if (recieve_buffer[recieve_buffer_pos] == '\n')
-	{
-		xTaskCreate(&parse_input, "parse_input", 4096, NULL, 5, &parse_handle);
-	}
-
     uart_clear_intr_status(ACTIVE_UART, UART_RXFIFO_FULL_INT_CLR|UART_RXFIFO_TOUT_INT_CLR);
 }
 
@@ -113,13 +129,13 @@ static void parse_input()
 	int32_t parsed = 0;
 	uint8_t unrecognized = 0;
 	recieve_buffer[++recieve_buffer_pos] = '\0';
-	
+
 	recieve_buffer_pos = 0;
 	skip_buffer_spaces();
 
 	if (wifi_status == WIFI_UNAME)
 	{
-		strncpy(credentials.name, recieve_buffer, strlen(recieve_buffer) - 2);
+		strncpy(credentials.name, recieve_buffer, strlen(recieve_buffer));
 		wifi_status = WIFI_PASSWORD;
 		uart_print_string("password: ");
 	}
@@ -167,7 +183,14 @@ static void parse_input()
 				skip_buffer_characters();
 				skip_buffer_spaces();
 
-				unrecognized = print_samples((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+				if (isspace(recieve_buffer[recieve_buffer_pos + 1]))
+				{
+					unrecognized = print_samples((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+				}
+				else
+				{
+					unrecognized = 4;
+				}
 			}
 		}
 		else
@@ -201,12 +224,14 @@ static void parse_input()
 					wifi_disconnect();
 				}
 				print_status();
+				
 			}
 			else if (!strncmp(&recieve_buffer[recieve_buffer_pos], "auth", 4) && isspace(recieve_buffer[recieve_buffer_pos += 4]))
 			{
 				wifi_status = WIFI_UNAME;
 				memset(&credentials, 0, CREDENTIAL_SIZE);
 				uart_print_string("name: ");
+				
 			}
 			else
 			{
@@ -242,7 +267,14 @@ static void parse_input()
 					skip_buffer_characters();
 					skip_buffer_spaces();
 
-					unrecognized = set_log_interval((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+					if (isspace(recieve_buffer[recieve_buffer_pos + 1]))
+					{
+						unrecognized = set_log_interval((uint32_t)parsed, recieve_buffer[recieve_buffer_pos]);
+					}
+					else
+					{
+						unrecognized = 4;
+					}
 				}
 			}
 		}
