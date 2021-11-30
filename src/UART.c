@@ -34,7 +34,7 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
 				recieve_buffer[++recieve_buffer_pos] = '\r';
 				uart_write_bytes(ACTIVE_UART, "\r\n", 2);
 			}
-			else if (recieve_buffer[recieve_buffer_pos] != '\n')
+			else if (recieve_buffer[recieve_buffer_pos] != '\n' && recieve_buffer[recieve_buffer_pos] != 0x08 && recieve_buffer[recieve_buffer_pos] != 0x7f)
 			{
 				uart_write_bytes(ACTIVE_UART, "*", 1);
 			}
@@ -47,18 +47,19 @@ static void IRAM_ATTR uart_interupt_handler(void *arg)
 				recieve_buffer[++recieve_buffer_pos] = '\r';
 				uart_write_bytes(ACTIVE_UART, "\r\n", 2);
 			}
-			else if (recieve_buffer[recieve_buffer_pos] != '\n')
+			else if (recieve_buffer[recieve_buffer_pos] != '\n' && recieve_buffer[recieve_buffer_pos] != 0x08 && recieve_buffer[recieve_buffer_pos] != 0x7f)
 			{
 				uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
 			}
 		}
-		else
+		else if (recieve_buffer[recieve_buffer_pos] != 0x08 && recieve_buffer[recieve_buffer_pos] != 0x7f) // backspace
 		{
         	uart_write_bytes(ACTIVE_UART, &recieve_buffer[recieve_buffer_pos], 1);
 		}
 
 		if (recieve_buffer[recieve_buffer_pos] == 0x08 || recieve_buffer[recieve_buffer_pos] == 0x7f) // backspace
 		{
+			uart_write_bytes(ACTIVE_UART, "\b \b", 3);
 			recieve_buffer_pos = recieve_buffer_pos < 2 ?  UINT8_MAX : recieve_buffer_pos - 2;
 		}
 
@@ -290,27 +291,30 @@ static void parse_input()
 		    (!strncmp(&recieve_buffer[recieve_buffer_pos], "elp", 3) && isspace(recieve_buffer[recieve_buffer_pos += 3])))
 		{
 			skip_buffer_spaces();
-			uart_print_string("+----------------------------------------------------------------------------+\r\n");
-			uart_print_string("|                                 HELP MESSAGE                               |\r\n");
-			uart_print_string("+----------------------------------------------------------------------------+\r\n");
-			uart_print_string("| Meaning of used notation:                                                  |\r\n");
-			uart_print_string("| - NL New line character (Enter key)                                        |\r\n");
-			uart_print_string("| - WS* Zero or more white space characters appart from <NL>.                |\r\n");
-			uart_print_string("| - WS+ One or more white space characters appart from <NL>.                 |\r\n");
-			uart_print_string("| Command line interface:                                                    |\r\n");
-			uart_print_string("| - <WS*><h|help><WS*><NL> Prints this help message.                         |\r\n");
-			uart_print_string("| - <WS*><s|status><WS*><NL> Prints the current status of the device.        |\r\n");
-			uart_print_string("| - <WS*><l|log><WS+><1-N><WS+><s|m|h|d><WS*><NL>                            |\r\n");
-			uart_print_string("|     Logs measured temperature each N seconds, minutes, hours or days.      |\r\n");
-			uart_print_string("| - <WS*><l|log><WS+><0><WS*><NL> Stops temperature logging.                 |\r\n");
-			uart_print_string("| - <WS*><p|print><WS+><1-N><WS+><s|m|h|d><WS*><NL>                          |\r\n");
-			uart_print_string("|     Prints measured temperature of last N seconds, minutes, hours or days. |\r\n");
-			uart_print_string("| - <WS*><t|time><WS+><sync><WS*><NL> Synchronizes the device time.          |\r\n");
-			uart_print_string("| - <WS*><w|wifi><WS+><connect><WS*><NL> Tries to connect to WiFi.           |\r\n");
-			uart_print_string("| - <WS*><w|wifi><WS+><disconnect><WS*><NL> Disconnects from WiFi.    	    |\r\n");
-			uart_print_string("| - <WS*><w|wifi><WS+><auth><WS*><NL>                                	    |\r\n");
-			uart_print_string("|     Asks the user for new WiFi credentials and tries to connect with them. |\r\n");
-			uart_print_string("+----------------------------------------------------------------------------+\r\n");
+			uart_print_string("+------------------------------------------------------------------------------+\r\n");
+			uart_print_string("|                                 HELP MESSAGE                                 |\r\n");
+			uart_print_string("+------------------------------------------------------------------------------+\r\n");
+			uart_print_string("| Meaning of used notation:                                                    |\r\n");
+			uart_print_string("| - <'characters'>                                                             |\r\n");
+			uart_print_string("|     Marks a group of characters located at a specific position in a command. |\r\n");
+			uart_print_string("| - 'characters1'|'characters2' Marks two different groups of characters.      |\r\n");
+			uart_print_string("| - NL New line character (Enter key)                                          |\r\n");
+			uart_print_string("| - WS* Zero or more white space characters appart from <NL>.                  |\r\n");
+			uart_print_string("| - WS+ One or more white space characters appart from <NL>.                   |\r\n");
+			uart_print_string("| Command line interface:                                                      |\r\n");
+			uart_print_string("| - <WS*><h|help><WS*><NL> Prints this help message.                           |\r\n");
+			uart_print_string("| - <WS*><s|status><WS*><NL> Prints the current status of the device.          |\r\n");
+			uart_print_string("| - <WS*><l|log><WS+><1-N><WS+><s|m|h|d><WS*><NL>                              |\r\n");
+			uart_print_string("|     Logs measured temperature each N seconds, minutes, hours or days.        |\r\n");
+			uart_print_string("| - <WS*><l|log><WS+><0><WS*><NL> Stops temperature logging.                   |\r\n");
+			uart_print_string("| - <WS*><p|print><WS+><1-N><WS+><s|m|h|d><WS*><NL>                            |\r\n");
+			uart_print_string("|     Prints measured temperature of last N seconds, minutes, hours or days.   |\r\n");
+			uart_print_string("| - <WS*><t|time><WS+><sync><WS*><NL> Synchronizes the device time.            |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><connect><WS*><NL> Tries to connect to Wi-Fi.            |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><disconnect><WS*><NL> Disconnects from Wi-Fi.            |\r\n");
+			uart_print_string("| - <WS*><w|wifi><WS+><auth><WS*><NL>                                          |\r\n");
+			uart_print_string("|     Asks the user for new Wi-Fi credentials and tries to connect with them.  |\r\n");
+			uart_print_string("+------------------------------------------------------------------------------+\r\n");
 		}
 		else
 		{

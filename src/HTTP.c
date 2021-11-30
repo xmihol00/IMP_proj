@@ -27,7 +27,7 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % SECONDS;
         if (data->seconds[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->seconds[modul].time, data->seconds[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->seconds[modul].time, data->seconds[modul].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
         }
@@ -46,7 +46,7 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % MINUTES;
         if (data->minutes[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->minutes[modul].time, data->minutes[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->minutes[modul].time, data->minutes[modul].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
         }
@@ -65,7 +65,7 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % HOURS;
         if (data->hours[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->hours[modul].time, data->hours[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->hours[modul].time, data->hours[modul].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
         }
@@ -84,7 +84,7 @@ static esp_err_t all_data(httpd_req_t *req)
         modul = data_pos % DAYS;
         if (data->days[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->days[modul].time, data->days[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->days[modul].time, data->days[modul].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
         }
@@ -143,7 +143,7 @@ static esp_err_t update_n(httpd_req_t *req)
         modul = data_pos % SECONDS;
         if (data->seconds[modul].time != 0)
         {
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->seconds[modul].time, data->seconds[modul].temperature);
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->seconds[modul].time, data->seconds[modul].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
 
@@ -169,7 +169,7 @@ static esp_err_t update_n(httpd_req_t *req)
         json[json_pos++] = ',';
         strcpy(&json[json_pos], "\"m\":[ ");
         json_pos += 6;
-        sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->minutes[data->minutes_pos - 1].time, 
+        sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->minutes[data->minutes_pos - 1].time, 
                                                                data->minutes[data->minutes_pos - 1].temperature);
         json_pos += JSON_OBJ_LEN;
         json[json_pos - 1] = ',';
@@ -184,7 +184,7 @@ static esp_err_t update_n(httpd_req_t *req)
             json[json_pos++] = ',';
             strcpy(&json[json_pos], "\"h\":[ ");
             json_pos += 6;
-            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->hours[data->hours_pos - 1].time, 
+            sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->hours[data->hours_pos - 1].time, 
                                                                    data->hours[data->hours_pos - 1].temperature);
             json_pos += JSON_OBJ_LEN;
             json[json_pos - 1] = ',';
@@ -199,7 +199,7 @@ static esp_err_t update_n(httpd_req_t *req)
                 json[json_pos++] = ',';
                 strcpy(&json[json_pos], "\"d\":[ ");
                 json_pos += 6;
-                sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.3f}   ", data->days[data->days_pos - 1].time, 
+                sprintf(&json[json_pos], "{\"x\":%20ld,\"y\":%3.2f}   ", data->days[data->days_pos - 1].time, 
                                                                        data->days[data->days_pos - 1].temperature);
                 json_pos += JSON_OBJ_LEN;
                 json[json_pos - 1] = ',';

@@ -17,7 +17,7 @@
 #include "data.h"
 #include "file.h"
 
-#define JSON_OBJ_LEN 39
+#define JSON_OBJ_LEN 38
 
 esp_err_t start_webserver();
 

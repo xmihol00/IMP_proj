@@ -35,6 +35,11 @@ void init_file_system()
     main_page.size = fread(main_page.data, 1, INDEX_FILE_SIZE, file);
     fclose(file);
 
+    credentials.name[0] = '*';
+    credentials.name[1] = 0;
+    credentials.password[0] = '*';
+    credentials.password[1] = 0;
+
     file = fopen("/spiffs/credentials", "r");
     if (file == NULL)
     {
@@ -44,11 +49,13 @@ void init_file_system()
     fread(&credentials, 1, CREDENTIAL_SIZE, file);
     if (credentials.name[0] == 0)
     {
-         credentials.name[0] = '0';
+         credentials.name[0] = '*';
+         credentials.name[1] = 0;
     }
     if (credentials.password[0] == 0)
     {
-         credentials.password[0] = '0';
+         credentials.password[0] = '*';
+         credentials.password[1] = 0;
     }
 
     fclose(file);
@@ -69,11 +76,13 @@ void store_credentials()
 
     if (credentials.name[0] == 0)
     {
-         credentials.name[0] = '0';
+         credentials.name[0] = '*';
+         credentials.name[1] = 0;
     }
     if (credentials.password[0] == 0)
     {
-         credentials.password[0] = '0';
+         credentials.password[0] = '*';
+         credentials.password[1] = 0;
     }
 
     fwrite(&credentials, 1, CREDENTIAL_SIZE, file);

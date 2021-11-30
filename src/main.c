@@ -22,5 +22,5 @@ void app_main(void)
 
     print_status();
 
-    xTaskCreate(&measure_temperature, "measure_temperature", 4096, NULL, 5, NULL);
+    xTaskCreate(&measure_temperature, "measure_temperature", 4096, NULL, 6, NULL);
 }

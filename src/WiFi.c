@@ -77,8 +77,10 @@ esp_err_t wifi_disconnect()
 
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
+    ESP_LOGI("WIFI", "%d", s_ip_addr.addr);
     if (s_ip_addr.addr == 0)
     {
+        ESP_LOGI("WIFI", "SEM givup");
         xSemaphoreGive(s_semph_get_ip_addrs);
     }
     else
