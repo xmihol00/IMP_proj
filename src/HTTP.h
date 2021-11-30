@@ -17,8 +17,12 @@
 #include "data.h"
 #include "file.h"
 
-#define JSON_OBJ_LEN 38
+#define JSON_OBJ_LEN 38         // pocet znaku jednoho JSON objektu nesouci udaje o namerene hodnote teploty
 
+/**
+ * @brief Spusti web server.
+ * @return ESP_OK v pripade uspechu, jinak ESP_FAIL.
+ **/
 esp_err_t start_webserver();
 
 #endif

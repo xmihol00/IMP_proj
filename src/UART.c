@@ -136,13 +136,15 @@ static void parse_input()
 
 	if (wifi_status == WIFI_UNAME)
 	{
-		strncpy(credentials.name, recieve_buffer, strlen(recieve_buffer));
+		parsed = strlen(recieve_buffer);
+		strncpy(credentials.name, recieve_buffer, parsed >= CREDENTIAL_NAME ? CREDENTIAL_NAME - 1 : parsed);
 		wifi_status = WIFI_PASSWORD;
 		uart_print_string("password: ");
 	}
 	else if (wifi_status == WIFI_PASSWORD)
 	{
-		strncpy(credentials.password, recieve_buffer, strlen(recieve_buffer));
+		parsed = strlen(recieve_buffer);
+		strncpy(credentials.password, recieve_buffer, parsed >= CREDENTIAL_PASS ? CREDENTIAL_PASS - 1 : parsed);
 		wifi_status = NO_WIFI;
 		store_credentials();
 

@@ -10,19 +10,31 @@
 
 #include "WiFi.h"
 
-#define INDEX_FILE_SIZE 10500
+#define INDEX_FILE_SIZE 10500       // udava maximalni velikost HTML stranky
 
+/**
+ * @brief Uchovava hlavni HTML stranku
+ **/
 typedef struct 
 {
-    char *data;
-    uint16_t size;
+    char *data;         // HTML stranka
+    uint16_t size;      // velikost v B
 } main_page_t;
 
-
+/**
+ * @brief Inicializuje souborovy system a nacte pocatecni data z flash pameti.
+ **/
 void init_file_system();
 
+/**
+ * @brief Ziska hhlavni HTML stranku.
+ * @return Hlavni HTML stranka.
+ **/
 main_page_t get_main_page();
 
+/**
+ * @brief Ulozi prihlasovaci udaje k WiFi do flash pameti.
+ **/
 void store_credentials();
 
 #endif

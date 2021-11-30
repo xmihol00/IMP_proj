@@ -17,11 +17,26 @@
 
 #include "WiFi.h"
 
-void set_current_time();
-
+/**
+ * @brief Inicializuje komponenty pro moznou synchronizaci casu s SNTP serverem.
+ **/
 void initialize_sntp();
 
+/**
+ * @brief Synchronizuje cas modulu s SNTP serverem.
+ **/
+void set_current_time();
+
+/**
+ * @brief Ziska cas posledni synchronizace.
+ * @return Cas posledni synchrnizace.
+ **/
 time_t get_last_sync();
+
+/**
+ * @brief Ziska cas spusteni modulu.
+ * @return Cas spusteni modulu.
+ **/
 time_t get_start_time();
 
 #endif

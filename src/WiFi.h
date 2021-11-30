@@ -22,22 +22,34 @@
 #include "esp_wifi.h"
 #include "esp_err.h"
 
-#define GPIO_LED_RED  2
-#define CREDENTIAL_SIZE 96
-#define CREDENTIAL_PASS 64
-#define CREDENTIAL_NAME 32
+#define GPIO_LED_RED  2         // GPIO, na kterem se nachazi cervena LED dioda
+#define CREDENTIAL_SIZE 96      // pocet znaku u prihlasovacich udaju k WiFi
+#define CREDENTIAL_PASS 64      // pocet znaku hesla WiFi 
+#define CREDENTIAL_NAME 32      // pocet znaku SSID WiFi
 
+/**
+ * @brief Struktura pro ulozeni uzivatelskych udaju.
+ **/
 typedef struct 
 {
-    char name[CREDENTIAL_NAME];
-    char password[CREDENTIAL_PASS];
+    char name[CREDENTIAL_NAME];         // SSID pro pipojeni k WiFi
+    char password[CREDENTIAL_PASS];     // heslo pro pipojeni k WiFi
 } credentials_t;
 
-
+/**
+ * @brief Pokusi se o pripojeni zarizeni k WiFi.
+ **/
 esp_err_t wifi_connect();
 
+/**
+ * @brief Zarizeni od WiFi odpoji.
+ **/
 esp_err_t wifi_disconnect();
 
+/**
+ * @brief Zkontroluje pripojeni k WiFi
+ * @return true, pokud je zarizeni pripojeno, jinak false
+ **/
 bool wifi_is_connected();
 
 #endif
