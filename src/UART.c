@@ -1,24 +1,35 @@
 
 #include "UART.h"
 
-static TaskHandle_t parse_handle = NULL;
-static intr_handle_t handle_console;
-static uint8_t recieve_buffer_pos = UINT8_MAX;
-char recieve_buffer[BUFFER_SIZE];
-char send_buffer[BUFFER_SIZE];
-static uint8_t wifi_status = NO_WIFI;
+static TaskHandle_t parse_handle = NULL;			// drzi ulohu, ktera je vyvolana v preruseni UART
+static intr_handle_t handle_console;				// drzi handler pro UART preruseni 
+static uint8_t recieve_buffer_pos = UINT8_MAX;		// udava pozici posledni zapsane hodnoty v bufferu
+char recieve_buffer[BUFFER_SIZE];					// buffer pro prijem dat pres UART
+char send_buffer[BUFFER_SIZE];						// buffer pro odesilani dat pres UART
+static uint8_t wifi_status = NO_WIFI;				// indikuje, jestli se jedna o zadavani wifi pristupovych udaju
 
-extern credentials_t credentials;
-extern esp_ip4_addr_t s_ip_addr;
+extern credentials_t credentials;					// dovazi z wifi.h
+extern esp_ip4_addr_t s_ip_addr;					// dovazi z wifi.h
 
 /**
- * @brief funkce pro zpracovani preruseni vzikle na UART
+ * @brief funkce pro zpracovani preruseni vzikle na UART.
  **/
 static void IRAM_ATTR uart_interupt_handler(void *arg);
+
+/**
+ * @brief Funkce pro analyzu vstupu z prikazove radky.
+ **/
 static void parse_input();
+
+/**
+ * @brief V recieve_buffer preskoci bile znaky az po nejaky nebily.
+ **/
 static void skip_buffer_spaces();
+
+/**
+ * @brief V recieve_buffer preskoci nebile znaky az po nejaky bily.
+ **/
 static void skip_buffer_characters();
-void print_status();
 
 static void IRAM_ATTR uart_interupt_handler(void *arg)
 {

@@ -1,19 +1,29 @@
 
 #include "WiFi.h"
 
-static esp_netif_t *get_netif_from_desc(const char *desc);
+/**
+ * @brief Funkce pro spusteni wifi.
+ **/
 static void wifi_start();
+
+/**
+ * @brief Funkce pro zastaveni wifi.
+ **/
 static void wifi_stop();
-static bool is_our_netif(const char *prefix, esp_netif_t *netif);
+
+/**
+ * @brief Callback volany, jakmile je obdrzena IP adresa a zarizeni je tak pripojeno.
+ **/
 static void on_got_ip(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
+
+/**
+ * @brief Callback volany pri nahlem odpojeni od wifi
+ **/
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
-static bool connected = false;
-static char *TAG = "WiFi";
-static int s_active_interfaces = 0;
-static xSemaphoreHandle s_semph_get_ip_addrs;
-static esp_netif_t *s_example_esp_netif = NULL;
-esp_ip4_addr_t s_ip_addr;
+static bool connected = false;                         // true, pokud je wifi pripojena, jinak false 
+static xSemaphoreHandle s_semph_get_ip_addrs;          // semafor pro pockani na pripojeni zajisteni pripojeni
+esp_ip4_addr_t s_ip_addr;                              // zde je ulozena IP adresa po pripojeni  
 
 credentials_t credentials;
 
@@ -32,7 +42,7 @@ static void signalize_wifi_connected()
     gpio_set_direction(GPIO_LED_RED, GPIO_MODE_DISABLE);
 }
 
-esp_err_t wifi_connect()
+void wifi_connect()
 {
     signalize_wifi_disconnected(); // zignalizace LED diodou, ze wifi neni pripojena
     s_ip_addr.addr = 0;
@@ -40,8 +50,9 @@ esp_err_t wifi_connect()
 
     if (s_semph_get_ip_addrs != NULL) 
     {
-        return ESP_ERR_INVALID_STATE;
+        return;
     }
+
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     esp_event_loop_create_default(); // vytvoreni obsluzne rutiny pro zpracovani WiFi udalosti
@@ -49,32 +60,27 @@ esp_err_t wifi_connect()
     wifi_start();
     ESP_ERROR_CHECK(esp_register_shutdown_handler(&wifi_stop)); // registrace handleru pro vypnuti wifi
 
-    for (int i = 0; i < s_active_interfaces; i++) 
-    {
-        xSemaphoreTake(s_semph_get_ip_addrs, portMAX_DELAY); 
-    }
+    xSemaphoreTake(s_semph_get_ip_addrs, portMAX_DELAY); // cekani na dokonceni pripojeni
 
     if (s_ip_addr.addr == 0)
     {
         wifi_disconnect(); // pripojeni se nezdarilo, wifi je vhodne odpojit
     }
-    
-    return ESP_OK;
 }
 
-esp_err_t wifi_disconnect()
+void wifi_disconnect()
 {
     if (s_semph_get_ip_addrs == NULL) 
     {
-        return ESP_ERR_INVALID_STATE;
+        return;
     }
+
     vSemaphoreDelete(s_semph_get_ip_addrs);
     s_semph_get_ip_addrs = NULL;
     wifi_stop(); // zastaveni wifi
     ESP_ERROR_CHECK(esp_unregister_shutdown_handler(&wifi_stop)); // zruseni handleru pro vypnuti
 
     signalize_wifi_disconnected(); // rozsviceni diody
-    return ESP_OK;
 }
 
 static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -93,17 +99,9 @@ static void on_wifi_disconnect(void *arg, esp_event_base_t event_base, int32_t e
 
 static void wifi_start()
 {
-    char *desc;
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT(); // ziskani zakladni konfigurace
     ESP_ERROR_CHECK(esp_wifi_init(&cfg)); // inicializace wifi
 
-    esp_netif_inherent_config_t esp_netif_config = ESP_NETIF_INHERENT_DEFAULT_WIFI_STA(); // ziskani zakladni konfigurace
-    
-    asprintf(&desc, "%s: %s", TAG, esp_netif_config.if_desc);
-    esp_netif_config.if_desc = desc;
-    esp_netif_config.route_prio = 128;
-    esp_netif_t *netif = esp_netif_create_wifi(WIFI_IF_STA, &esp_netif_config);
-    free(desc);
     esp_wifi_set_default_wifi_sta_handlers();
 
     // registrace hanfdleru pro nahle odpojeni a pro pripojeni (ziskani IP adresy)
@@ -127,14 +125,12 @@ static void wifi_start()
     ESP_ERROR_CHECK(esp_wifi_start());
     esp_wifi_connect();
     
-    s_example_esp_netif = netif;
-    s_active_interfaces++;
-    s_semph_get_ip_addrs = xSemaphoreCreateCounting(s_active_interfaces, 0);
+    s_semph_get_ip_addrs = xSemaphoreCreateCounting(1, 0);
 }
 
 static void wifi_stop()
 {
-    esp_netif_t *wifi_netif = get_netif_from_desc("sta");
+    esp_netif_t *wifi_netif = esp_netif_next(NULL);
     // odebrani handleru pro odpojeni a ziskani IP
     ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &on_wifi_disconnect));
     ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip));
@@ -154,47 +150,17 @@ static void wifi_stop()
     ESP_ERROR_CHECK(esp_wifi_deinit());
     ESP_ERROR_CHECK(esp_wifi_clear_default_wifi_driver_and_handlers(wifi_netif));
     esp_netif_destroy(wifi_netif);
-    s_example_esp_netif = NULL;
-    s_active_interfaces--;
-}
-
-static esp_netif_t *get_netif_from_desc(const char *desc)
-{
-    esp_netif_t *netif = NULL;
-    char *expected_desc;
-    asprintf(&expected_desc, "%s: %s", TAG, desc);
-    while ((netif = esp_netif_next(netif)) != NULL) 
-    {
-        if (strcmp(esp_netif_get_desc(netif), expected_desc) == 0) 
-        {
-            free(expected_desc);
-            return netif;
-        }
-    }
-
-    free(expected_desc);
-    return netif;
-}
-
-static bool is_our_netif(const char *prefix, esp_netif_t *netif)
-{
-    return strncmp(prefix, esp_netif_get_desc(netif), strlen(prefix) - 1) == 0;
 }
 
 static void on_got_ip(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-    if (!is_our_netif(TAG, event->esp_netif)) 
-    {
-        return;
-    }
+    memcpy(&s_ip_addr, &event->ip_info.ip, sizeof(s_ip_addr)); // ulozeni IP adresy
 
-    memcpy(&s_ip_addr, &event->ip_info.ip, sizeof(s_ip_addr));
+    connected = true;               // zaznamenani uspesneho pripojeni
+    signalize_wifi_connected();     // signalizace pripojeni k wifi
 
-    connected = true;
-    signalize_wifi_connected();
-
-    xSemaphoreGive(s_semph_get_ip_addrs);
+    xSemaphoreGive(s_semph_get_ip_addrs); // uvolneni behu programu, pripojeni vytvoreno
 }
 
 bool wifi_is_connected()

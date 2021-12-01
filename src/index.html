@@ -266,6 +266,10 @@
                 return mainDiv;
             }
 
+            /**
+             * @brief Nastavi interval obnovy specifikovany uzivatelem a spusti obnovu s timto intervalem.
+             * @param btn kliknute tlacitko
+             **/
             function UpdateDelay(btn)
             {
                 let buttons = document.getElementsByTagName("button");
@@ -342,7 +346,12 @@
                     }
                 }
             }
-
+            
+            /**
+             * @brief Rozevre nebo skryje <div> s namerenou teplotou.
+             * @param id id divu
+             * @param btn kliknute tlacitko
+             **/
             function HideShowDiv(id, btn)
             {
                 let div = document.getElementById(id);
@@ -381,6 +390,14 @@
                 }
             }
 
+            /**
+             * @brief Pripoji nove namerene hodnoty do patricnych <div>, ve kterych jsou zobrazeny
+             * @oaram message prichozi zprava
+             * @param sRes div se sekundovymi vzorky
+             * @param mRes div se minutoymi vzorky
+             * @param hRes div se hodinovymi vzorky
+             * @param dRes div se dennimi vzorky
+             **/
             function AppendMessages(messages, sRes, mRes, hRes, dRes)
             {         
                 BCKG = sRes.firstChild && sRes.firstChild.style.background == "";
@@ -405,6 +422,9 @@
                 }
             }
         
+            /**
+             * @brief ziska vsechna aktulane namerena data ze serveru.
+             **/
             function GetData()
             {
                 let request = new XMLHttpRequest();
@@ -426,7 +446,10 @@
                 };
                 request.send();
             }
-
+            
+            /**
+             * @brief Ziska poslednich COUNT vzorku dat ze serveru
+             **/
             function UpdateData()
             {             
                 let request = new XMLHttpRequest();
@@ -445,7 +468,10 @@
                 };
                 request.send(UPDATE_CNT);
             }
-
+            
+            /**
+             * @brief po nacteni sranky jsou ihned ziskana data ze serveru a nastaven interval obnovy na 60 s.
+             **/
             document.addEventListener("DOMContentLoaded", () => 
             { 
                 GetData();

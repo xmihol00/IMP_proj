@@ -258,13 +258,13 @@ httpd_uri_t uri_update_n =
     .user_ctx = NULL
 };
 
-esp_err_t start_webserver()
+void start_webserver()
 {
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG(); // nastaveni zakladni konfigurace serveru
 
     httpd_handle_t server = NULL;
 
-    if (httpd_start(&server, &config) == ESP_OK) // spusteni serveru
+    if (httpd_start(&server, &config) == ESP_OK) // spusteni serveru uspelo
     {
         // registrace koncovych bodu
         httpd_register_uri_handler(server, &main_page_uri);
@@ -272,5 +272,5 @@ esp_err_t start_webserver()
         httpd_register_uri_handler(server, &uri_update_n);
     }
 
-    return server ? ESP_OK : ESP_FAIL;
+    return;
 }

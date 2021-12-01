@@ -1,12 +1,12 @@
 #include "file.h"
 
-extern credentials_t credentials;
+extern credentials_t credentials; // prihlasovaci udaje k WiFi
 
 static main_page_t main_page =
 {
     .data = NULL,
     .size = 0
-};
+}; // struktura, do ktere bude nahrana hlavni stranka http serveru
 
 void init_file_system()
 {

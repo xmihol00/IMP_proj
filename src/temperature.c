@@ -9,10 +9,10 @@
 #if ADC2
     static const adc2_channel_t channel = ADC2_CHANNEL_2; // GPIO 02
 #endif
-static const adc_bits_width_t width = ADC_WIDTH_BIT_12;
-static const adc_atten_t atten = ADC_ATTEN_DB_11;
-static const adc_unit_t unit = ADC_UNIT_1;
-static esp_adc_cal_characteristics_t adc_chars;
+static const adc_bits_width_t width = ADC_WIDTH_BIT_12;     // presnost mereni - na 12 bitu
+static const adc_atten_t atten = ADC_ATTEN_DB_11;           // rozsah 150 - 2450 mV
+static const adc_unit_t unit = ADC_UNIT_1;                  // vzdy ADC_UNIT_1 ESP32 nepodporuje ADC_UNIT_2
+static esp_adc_cal_characteristics_t adc_chars;             // charakteristika ADC
 
 void init_temperature()
 {

@@ -53,7 +53,7 @@ collected_data_t;
 /**
  * @brief Inicializuje (alokuje pamet bufferu) moznost ukladani vysledku mereni.
  **/
-esp_err_t init_data();
+void init_data();
 
 /**
  * @brief Ulozi provedene mereni.

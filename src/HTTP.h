@@ -21,8 +21,7 @@
 
 /**
  * @brief Spusti web server.
- * @return ESP_OK v pripade uspechu, jinak ESP_FAIL.
  **/
-esp_err_t start_webserver();
+void start_webserver();
 
 #endif

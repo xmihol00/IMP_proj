@@ -39,12 +39,12 @@ typedef struct
 /**
  * @brief Pokusi se o pripojeni zarizeni k WiFi.
  **/
-esp_err_t wifi_connect();
+void wifi_connect();
 
 /**
  * @brief Zarizeni od WiFi odpoji.
  **/
-esp_err_t wifi_disconnect();
+void wifi_disconnect();
 
 /**
  * @brief Zkontroluje pripojeni k WiFi
