@@ -1,32 +1,32 @@
 
 #include "SNTP.h"
 
-static time_t last_sync = 0;
-static time_t start_time = 0;
+static time_t last_sync = 0;    // cas posledni synchronizace s SNTP serverem
+static time_t start_time = 0;   // cas spusteni zarizeni
 
 void initialize_sntp()
 {
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
+    sntp_setservername(0, "pool.ntp.org");  // nastaveni serveru pro synchronizaci
     sntp_init();
 }
 
 void set_current_time()
 {
-    if (wifi_is_connected())
+    if (wifi_is_connected()) // synchronizace probehne pouze pokud je wifi pripojena
     {
         sntp_servermode_dhcp(1);
 
         int retry = 0;
-        while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 15) 
+        while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < 15) // cekani na odpoved ze serveru
         {
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
 
-        setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1);
+        setenv("TZ", "CET-1CEST,M3.5.0/02,M10.5.0/03", 1); // nastaveni formatovani casu na stredoevropske casove pasmo
         tzset();
         time(&last_sync);
-        if (start_time == 0)
+        if (start_time == 0) // nastaveni casu spusteni
         {
             start_time = last_sync;
         }

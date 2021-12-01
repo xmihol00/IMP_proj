@@ -403,7 +403,7 @@
             function GetData()
             {
                 let request = new XMLHttpRequest();
-                request.open("GET", "http://192.168.1.113/AllData", true);
+                request.open("GET", "/AllData", true);
                 request.onreadystatechange = function()
                 {
                     if ((request.readyState == READY_STATE_FINISHED) && (request.status == STATUS_OK))
@@ -425,7 +425,7 @@
             function UpdateData()
             {             
                 let request = new XMLHttpRequest();
-                request.open("POST", "http://192.168.1.113/Update", true);
+                request.open("POST", "/Update", true);
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");
                 request.onreadystatechange = function()
                 {

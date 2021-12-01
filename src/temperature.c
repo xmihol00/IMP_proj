@@ -1,7 +1,7 @@
 #include "temperature.h"
 #include "data.h"
 
-#define ADC1 1
+#define ADC1 1  // definuje aktivni AD prevodnik, ADC2 nefunguje spolecne s WiFi
 
 #if ADC1
     static const adc1_channel_t channel = ADC1_CHANNEL_6; // GPIO 34
@@ -16,25 +16,27 @@ static esp_adc_cal_characteristics_t adc_chars;
 
 void init_temperature()
 {
+    // volba dle vybraneho ADC
     #if ADC1
         adc1_config_width(width);
-        adc1_config_channel_atten(channel, atten);
+        adc1_config_channel_atten(channel, atten); // vyber GPIO, ktere ma byt mereno
     #endif
 
     #if ADC2
         adc2_config_channel_atten(channel, atten);
     #endif
 
-    esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);
+    esp_adc_cal_characterize(unit, atten, width, DEFAULT_VREF, &adc_chars);  // zadani charakteristiky zarizeni
 }
 
 void measure_temperature()
 {
-    while (1) 
+    while (1) // nekonecna smycka programu
     {
         uint32_t adc_reading = 0;
-        for (int i = 0; i < NUMBER_OF_SAMPLES; i++) // multisampling
+        for (int i = 0; i < NUMBER_OF_SAMPLES; i++) // opakovane mereni pro vyhlazeni sumu
         {
+            // volba dle aktivniho ADC
             #if ADC2
                 int raw = 0;
                 adc2_get_raw(channel, width, &raw);
@@ -45,14 +47,14 @@ void measure_temperature()
             #endif
         }
 
-        adc_reading >>= SAMPLE_SHIFT; // prumer z multisampling
+        adc_reading >>= SAMPLE_SHIFT; // prumer 
         
         // prevod prectene hodnoty na milivolty
         uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, &adc_chars);
 
         float temp = (8.194 - (float)sqrt(67.141636 + 0.01048 * (1324.0 - (float)voltage))) / -0.00524 + 30;
-        store_measurment(temp);
+        store_measurment(temp); // ulozeni teploty
 
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(1000 / portTICK_RATE_MS); // cekani na dalsi sekundu
     }
 }

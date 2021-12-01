@@ -9,8 +9,10 @@
 
 void app_main(void)
 {
+    // vypnuti logovani
     esp_log_level_set("*", ESP_LOG_ERROR); 
     
+    // inicializace vsech casti systemu
     init_data();
     init_uart();
     init_file_system();
@@ -20,7 +22,9 @@ void app_main(void)
     start_webserver();
     init_temperature();
 
+    // vypis stavu zarizeni po inizializaci
     print_status();
 
+    // registrace funkce pro mereni teploty
     xTaskCreate(&measure_temperature, "measure_temperature", 4096, NULL, 6, NULL);
 }

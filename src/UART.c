@@ -11,6 +11,10 @@ static uint8_t wifi_status = NO_WIFI;
 extern credentials_t credentials;
 extern esp_ip4_addr_t s_ip_addr;
 
+/**
+ * @brief funkce pro zpracovani preruseni vzikle na UART
+ **/
+static void IRAM_ATTR uart_interupt_handler(void *arg);
 static void parse_input();
 static void skip_buffer_spaces();
 static void skip_buffer_characters();
