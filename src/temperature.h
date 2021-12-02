@@ -1,6 +1,15 @@
 #ifndef __TEMPERATURE_H__
 #define __TEMPERATURE_H__
 
+//=================================================================================================================
+// Soubor:      temperature.h
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Deklarace pro soubor temperature.c
+//=================================================================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

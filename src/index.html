@@ -1,3 +1,13 @@
+<!--
+//=================================================================================================================
+// Soubor:      index.html
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Soubor obsahujici HTML, CSS a JS pro webovou stranku ESP.
+//===============================================================================================================-->
+
 <html>
     <head>
         <title>IMP projekt</title>
@@ -209,11 +219,11 @@
         </div>
             
         <script type="text/javascript">            
-            const READY_STATE_FINISHED = 4;
-            const STATUS_OK = 200;
-            var BCKG = true;
-            var UPDATE_CNT = 1;
-            var INTERVAL = null;
+            const READY_STATE_FINISHED = 4;     // AJAX statu
+            const STATUS_OK = 200;              // HTTP status code
+            var BCKG = true;                    // backgroud color indicator
+            var UPDATE_CNT = 1;                 // update interval time period
+            var INTERVAL = null;                // update interval
             
             /**
              * @brief vytvori <div> s namerenou teplotou a casovym razitkem

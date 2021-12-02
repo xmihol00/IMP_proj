@@ -1,3 +1,11 @@
+//=================================================================================================================
+// Soubor:      UART.c
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Fuknce pro ovladani UART a tisknuti z nej.
+//=================================================================================================================
 
 #include "UART.h"
 
@@ -9,7 +17,7 @@ char send_buffer[BUFFER_SIZE];						// buffer pro odesilani dat pres UART
 static uint8_t wifi_status = NO_WIFI;				// indikuje, jestli se jedna o zadavani wifi pristupovych udaju
 
 extern credentials_t credentials;					// dovazi z wifi.h
-extern esp_ip4_addr_t s_ip_addr;					// dovazi z wifi.h
+extern esp_ip4_addr_t ip_addr;					// dovazi z wifi.h
 
 /**
  * @brief funkce pro zpracovani preruseni vzikle na UART.
@@ -122,7 +130,7 @@ void uart_print_measurment(measurment_t *measurment)
 	// ziskani ulozeneho casu
 	localtime_r(&measurment->time, &local_time);
 	// formatovani namerenych dat
-	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "| %c", &local_time) - 5], ":       \t     %3.3f °C\t|\r\n", measurment->temperature);
+	sprintf(&send_buffer[strftime(send_buffer, BUFFER_SIZE, "| %c", &local_time) - 5], "        \t     %3.3f °C\t|\r\n", measurment->temperature);
 
 	uart_write_bytes(ACTIVE_UART, send_buffer, strlen(send_buffer)); // vypis
 	vTaskDelay(25 / portTICK_RATE_MS); // po vytisku cekani 25 ms pro uvolneni UART buffer
@@ -433,10 +441,10 @@ void print_status()
 	if (wifi_is_connected())
 	{
 		sprintf(send_buffer, "| - WiFi is connected, device IP address is: %d.%d.%d.%d\t\t\t|\r\n", 
-																							 s_ip_addr.addr & 0xFF,
-																							 (s_ip_addr.addr >> 8) & 0xFF, 
-																							 (s_ip_addr.addr >> 16) & 0xFF,
-																							 s_ip_addr.addr >> 24); // formtovani IP adresy
+																							 ip_addr.addr & 0xFF,
+																							 (ip_addr.addr >> 8) & 0xFF, 
+																							 (ip_addr.addr >> 16) & 0xFF,
+																							 ip_addr.addr >> 24); // formtovani IP adresy
 		uart_print_string(send_buffer);	
 	}
 	else

@@ -1,3 +1,12 @@
+//=================================================================================================================
+// Soubor:      file.c
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Funkce pro spravu souboroveho systemu
+//=================================================================================================================
+
 #include "file.h"
 
 extern credentials_t credentials; // prihlasovaci udaje k WiFi

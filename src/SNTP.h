@@ -1,6 +1,15 @@
 #ifndef __SNTP_H__
 #define __SNTP_H__
 
+//=================================================================================================================
+// Soubor:      SNTP.h
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Deklarace pro soubor SNTP.c
+//=================================================================================================================
+
 #include <string.h>
 #include <time.h>
 #include <sys/time.h>

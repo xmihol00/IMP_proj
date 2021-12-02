@@ -1,6 +1,15 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+//=================================================================================================================
+// Soubor:      file.h
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Deklarace pro soubor file.c
+//=================================================================================================================
+
 #include <stdio.h>
 #include <string.h>
 #include <sys/unistd.h>

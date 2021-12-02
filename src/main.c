@@ -1,3 +1,11 @@
+//=================================================================================================================
+// Soubor:      main.c
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Hlavni funkce programu s inicializacemi.
+//=================================================================================================================
 
 #include "UART.h"
 #include "temperature.h"

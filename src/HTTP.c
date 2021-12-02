@@ -1,3 +1,12 @@
+//=================================================================================================================
+// Soubor:      HTTP.c
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Funkce pro ovladani HTTP serveru a reagovani na pozadavky.
+//=================================================================================================================
+
 #include "HTTP.h"
 
 /**

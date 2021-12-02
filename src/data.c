@@ -1,3 +1,11 @@
+//=================================================================================================================
+// Soubor:      data.c
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Uchovani namerenych dat a jejich interpretace pri tisku.
+//=================================================================================================================
 
 #include "data.h"
 

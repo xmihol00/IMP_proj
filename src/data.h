@@ -1,6 +1,15 @@
 #ifndef __DATA_H__
 #define __DATA_H__
 
+//=================================================================================================================
+// Soubor:      data.h
+// Projekt:     VUT, FIT, IMP, Mereni teploty
+// Datum:       2. 12. 2021
+// Autor:       David Mihola
+// Kontakt:     xmihol00@stud.fit.vutbr.cz
+// Popis:       Deklarace pro soubor data.c
+//=================================================================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
