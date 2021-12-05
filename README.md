@@ -1,9 +1,9 @@
 # Projekt:     VUT, FIT, IMP, Mereni teploty
-# Datum:       2. 12. 2021
-# Autor:       David Mihola
-# Kontakt:     xmihol00@stud.fit.vutbr.cz
+### Datum:       5. 12. 2021
+### Autor:       David Mihola
+### Kontakt:     xmihol00@stud.fit.vutbr.cz
 
-# Soubory projektu
+## Soubory projektu
 --|
   |-- data/      Adresar obsahujici minifikovany soubor index.html pro nahrani do ESP.
   |          
@@ -14,6 +14,7 @@
   |-- README.md  Tento soubor.
   |
 
+## Preklad
 Preklad a nahrani do souboru ESP 32 probihalo pomoci programu *Visual Studio Code* za pouziti rozsireni *PlatformIO*.
 V konfiguracnim souboru *platformio.ini* byly pouzity nasledujici hodnoty:
     [env:esp32dev]
