@@ -4,6 +4,7 @@
 ### Kontakt:     xmihol00@stud.fit.vutbr.cz
 
 ## Soubory projektu
+```
 --|
   |-- data/      Adresar obsahujici minifikovany soubor index.html pro nahrani do ESP.
   |          
@@ -13,13 +14,16 @@
   |
   |-- README.md  Tento soubor.
   |
+```
 
 ## Preklad
 Preklad a nahrani do souboru ESP 32 probihalo pomoci programu *Visual Studio Code* za pouziti rozsireni *PlatformIO*.
 V konfiguracnim souboru *platformio.ini* byly pouzity nasledujici hodnoty:
+```
     [env:esp32dev]
     platform = espressif32
     board = esp32dev
     framework = espidf
     monitor_speed = 115200
     monitor_flags = --raw 
+```
