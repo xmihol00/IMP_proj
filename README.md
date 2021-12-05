@@ -10,7 +10,7 @@
   |          
   |-- doc/                        Adresar obsahujici soubory s dokumentaci v binarni i zdrojove podobe.
   |
-  |-- src/                        Adresar obsahujici hlavickove a zdrojove soubory, formatovany soubor index.html a Makefile.
+  |-- src/                        Adresar obsahujici hlavickove a zdrojove soubory a formatovany soubor index.html.
   |
   |-- README.md                   Tento soubor.
   |
@@ -28,3 +28,6 @@ V konfiguracnim souboru *platformio.ini* byly pouzity nasledujici hodnoty:
     monitor_speed = 115200
     monitor_flags = --raw 
 ```
+
+## Dokumentace
+Zdrojová forma dokumentace obsahuje pouze soubor *main.tex* z důvodu příliš velké velikosti obrázku. Ke všem zdrojovým souborům lze přistoupit pod tímto odkazem https://www.overleaf.com/read/pqgxkbybcmzs.
