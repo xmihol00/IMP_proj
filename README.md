@@ -6,14 +6,15 @@
 ## Soubory projektu
 ```
 --|
-  |-- data/      Adresar obsahujici minifikovany soubor index.html pro nahrani do ESP.
+  |-- data/                       Adresar obsahujici minifikovany soubor index.html pro nahrani do flash pameti modulu ESP.
   |          
-  |-- doc/       Adresar obsahujici soubory s dokumentaci v binarni i zdrojove podobe.
+  |-- doc/                        Adresar obsahujici soubory s dokumentaci v binarni i zdrojove podobe.
   |
-  |-- src/       Adresar obsahujici hlavickove a zdrojove soubory, formatovany soubor index.html a Makefile.
+  |-- src/                        Adresar obsahujici hlavickove a zdrojove soubory, formatovany soubor index.html a Makefile.
   |
-  |-- README.md  Tento soubor.
+  |-- README.md                   Tento soubor.
   |
+  |-- partitions_singleapp.csv    Soubor obsahujici konfiguraci flash pameti modulu ESP.
 ```
 
 ## Preklad
